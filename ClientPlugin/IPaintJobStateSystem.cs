@@ -5,7 +5,7 @@ namespace ClientPlugin
 {
     public interface IPaintJobStateSystem
     {
-        void ListColors();
+        void ShowState();
         void AddColor(string[] args);
         void RemoveColor(string[] args);
         IEnumerable<Color> GetColors();

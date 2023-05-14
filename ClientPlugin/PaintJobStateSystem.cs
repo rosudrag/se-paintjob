@@ -22,21 +22,24 @@ namespace ClientPlugin
             InitializeColorDictionary();
         }
 
-        public void ListColors()
+        public void ShowState()
         {
-            var colorList = new StringBuilder("Colors: ");
+            var sb = new StringBuilder("Paint plugin state");
+            sb.AppendLine("--- --- --- --- --- ---");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("Colors selected:");
+            sb.AppendLine();
             for (var i = 0; i < _colors.Count; i++)
             {
                 var color = _colors[i];
                 var colorName = _colorDictionary.FirstOrDefault(x => x.Value == color).Key;
-                if (i > 0)
-                {
-                    colorList.Append(", ");
-                }
-                colorList.Append($"{colorName} ({color})");
+                sb.AppendLine($"{i}.{colorName}");
             }
+            sb.AppendLine("--- --- --- --- --- ---");
+            sb.AppendLine($"Style: {_currentStyle.ToString()}");
 
-            MyAPIGateway.Utilities.ShowNotification(colorList.ToString(), 5000, MyFontEnum.Green);
+            MyAPIGateway.Utilities.ShowMissionScreen("Paint state", "", "", sb.ToString(), null, "Close");
         }
 
         public void AddColor(string[] args)
@@ -56,7 +59,6 @@ namespace ClientPlugin
             else
             {
                 MyAPIGateway.Utilities.ShowNotification($"Invalid color '{colorName}'.", 5000, MyFontEnum.Red);
-                _helpSystem.ShowValidValues("Valid Colors", _colorDictionary.Select(x => x.Key));
             }
         }
 
@@ -115,6 +117,8 @@ namespace ClientPlugin
                 var colorValue = (Color)colorProperty.GetValue(null);
                 _colorDictionary[colorName] = colorValue;
             }
+            
+            _helpSystem.WithColors(_colorDictionary.Select(x => x.Key));
         }
     }
 

@@ -24,7 +24,7 @@ namespace ClientPlugin
                     "add", stateSystem.AddColor
                 },
                 {
-                    "list", args => stateSystem.ListColors()
+                    "state", args => stateSystem.ShowState()
                 },
                 {
                     "remove", stateSystem.RemoveColor

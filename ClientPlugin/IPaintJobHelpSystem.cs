@@ -5,6 +5,6 @@ namespace ClientPlugin
     public interface IPaintJobHelpSystem
     {
         void DisplayHelp();
-        void ShowValidValues(string title, IEnumerable<string> values);
+        void WithColors(IEnumerable<string> colors);
     }
 }
