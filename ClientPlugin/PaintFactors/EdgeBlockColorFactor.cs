@@ -14,7 +14,7 @@ namespace ClientPlugin.PaintFactors
 
         public Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors)
         {
-            return current.Lighten(0.1f);
+            return current.Lighten(0.5f);
         }
 
         public void Clean()

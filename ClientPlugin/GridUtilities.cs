@@ -12,7 +12,7 @@ namespace ClientPlugin
 {
     public static class GridUtilities
     {
-        public static IMyCubeGrid GetGridInFrontOfPlayer(double distance = 10)
+        public static IMyCubeGrid GetGridInFrontOfPlayer(double distance = 100)
         {
             var controlledEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
             var forwardVector = controlledEntity.WorldMatrix.Forward;
@@ -75,26 +75,6 @@ namespace ClientPlugin
             }
 
             return countEmptyFaces >= 2;
-        }
-        
-        public static MatrixD GetGridOrientation(IMyCubeGrid grid)
-        {
-            IMyShipController mainCockpit = null;
-            var controllers = grid.GetFatBlocks<IMyShipController>();
-
-            if (controllers.Any())
-            {
-                if (controllers.Any(x => x.IsMainCockpit))
-                {
-                    mainCockpit = controllers.First(x => x.IsMainCockpit);
-                }
-                else
-                {
-                    mainCockpit = controllers.First();
-                }
-            }
-
-            return mainCockpit != null ? mainCockpit.WorldMatrix.GetOrientation() : MatrixD.Identity;
         }
     }
 }

@@ -7,18 +7,25 @@ namespace ClientPlugin
     {
         public static Color Darken(this Color color, float percentage)
         {
+            var factor = 1f - percentage;
             return new Color(
-                (byte)Math.Max(color.R * (1 - percentage), 0),
-                (byte)Math.Max(color.G * (1 - percentage), 0),
-                (byte)Math.Max(color.B * (1 - percentage), 0));
+                ClampByte(color.R * factor),
+                ClampByte(color.G * factor),
+                ClampByte(color.B * factor));
         }
 
         public static Color Lighten(this Color color, float percentage)
         {
+            var factor = 1f + percentage;
             return new Color(
-                (byte)Math.Min(color.R * (1 + percentage), 255),
-                (byte)Math.Min(color.G * (1 + percentage), 255),
-                (byte)Math.Min(color.B * (1 + percentage), 255));
+                ClampByte(color.R * factor),
+                ClampByte(color.G * factor),
+                ClampByte(color.B * factor));
+        }
+
+        private static byte ClampByte(float value)
+        {
+            return (byte)Math.Min(Math.Max(value, 0), 255);
         }
     }
 }

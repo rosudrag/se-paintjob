@@ -30,9 +30,12 @@ namespace ClientPlugin
 
         private void PaintCommand(string messageText, ref bool sendToOthers)
         {
-            sendToOthers = false;
-            var args = messageText.Split(' ');
-            _interpreter.Interpret(args);
+            if (messageText.StartsWith("/paint"))
+            {
+                sendToOthers = false;
+                var args = messageText.Split(' ');
+                _interpreter.Interpret(args);
+            }
         }
     }
 

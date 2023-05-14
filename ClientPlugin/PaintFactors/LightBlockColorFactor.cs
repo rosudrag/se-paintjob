@@ -33,35 +33,39 @@ namespace ClientPlugin.PaintFactors
                 MatrixD.Invert(ref worldMatrix, out var invertedWorldMatrix);
                 var relativePos = Vector3D.Transform(block.WorldPosition, invertedWorldMatrix);
 
-                var gridOrientation = GridUtilities.GetGridOrientation(grid);
-
-                var relativePosRotated = Vector3D.Transform(relativePos, MatrixD.Transpose(gridOrientation));
-
-                if (relativePosRotated.X > 0)
+                // Get the local player's controlled entity
+                var controlledEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
+                if (controlledEntity != null)
                 {
-                    // Starboard side - green light
-                    lightBlock.Color = Color.Green;
+                    var playerOrientation = controlledEntity.WorldMatrix;
+                    var relativePosRotated = Vector3D.Transform(relativePos, MatrixD.Transpose(playerOrientation));
+
+                    if (relativePosRotated.Z > 0)
+                    {
+                        // Starboard side - green light
+                        lightBlock.Color = Color.Green;
+                        lightBlock.BlinkIntervalSeconds = 0;
+                        lightBlock.BlinkLength = 50;
+                        lightBlock.BlinkOffset = 0;
+                        lightBlock.Intensity = 2;
+                        lightBlock.Radius = 20;
+                        lightBlock.Falloff = 1;
+                        return Color.Green;
+                    }
+                    // Port side - red light
+                    lightBlock.Color = Color.Red;
                     lightBlock.BlinkIntervalSeconds = 0;
                     lightBlock.BlinkLength = 50;
                     lightBlock.BlinkOffset = 0;
                     lightBlock.Intensity = 2;
                     lightBlock.Radius = 20;
                     lightBlock.Falloff = 1;
-                    return Color.Green;
+                    return Color.Red;
                 }
-                // Port side - red light
-                lightBlock.Color = Color.Red;
-                lightBlock.BlinkIntervalSeconds = 0;
-                lightBlock.BlinkLength = 50;
-                lightBlock.BlinkOffset = 0;
-                lightBlock.Intensity = 2;
-                lightBlock.Radius = 20;
-                lightBlock.Falloff = 1;
-                return Color.Red;
             }
-
             return current;
         }
+        
         public void Clean()
         {
 
