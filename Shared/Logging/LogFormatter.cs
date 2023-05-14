@@ -8,8 +8,8 @@ namespace Shared.Logging
     public class LogFormatter
     {
         private const int MaxExceptionDepth = 100;
-        private readonly ThreadLocal<StringBuilder> threadLocalStringBuilder = new ThreadLocal<StringBuilder>();
         private readonly string prefix;
+        private readonly ThreadLocal<StringBuilder> threadLocalStringBuilder = new ThreadLocal<StringBuilder>();
 
         protected LogFormatter(string prefix)
         {

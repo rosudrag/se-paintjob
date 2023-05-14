@@ -13,17 +13,16 @@ namespace ClientPlugin.GUI
     public class MyPluginConfigDialog : MyGuiScreenBase
     {
         private const string Caption = "PicassoGrids Configuration";
-        public override string GetFriendlyName() => "MyPluginConfigDialog";
-
-        private MyLayoutTable layoutTable;
+        private MyGuiControlButton closeButton;
+        private MyGuiControlCheckbox enabledCheckbox;
 
         private MyGuiControlLabel enabledLabel;
-        private MyGuiControlCheckbox enabledCheckbox;
 
         // TODO: Add member variables for your UI controls here
 
         private MyGuiControlMultilineText infoText;
-        private MyGuiControlButton closeButton;
+
+        private MyLayoutTable layoutTable;
 
         public MyPluginConfigDialog() : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.5f, 0.7f), false, null, MySandboxGame.Config.UIBkOpacity, MySandboxGame.Config.UIOpacity)
         {
@@ -33,6 +32,10 @@ namespace ClientPlugin.GUI
             CanHideOthers = true;
             CanBeHidden = true;
             CloseButtonEnabled = true;
+        }
+        public override string GetFriendlyName()
+        {
+            return "MyPluginConfigDialog";
         }
 
         public override void LoadContent()
@@ -70,7 +73,10 @@ namespace ClientPlugin.GUI
             closeButton = new MyGuiControlButton(originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOk);
         }
 
-        private void OnOk(MyGuiControlButton _) => CloseScreen();
+        private void OnOk(MyGuiControlButton _)
+        {
+            CloseScreen();
+        }
 
         private void CreateCheckbox(out MyGuiControlLabel labelControl, out MyGuiControlCheckbox checkboxControl, bool value, Action<bool> store, string label, string tooltip)
         {

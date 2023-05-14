@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel;
-using System.Xml.Serialization;
 using System.IO;
 using System.Threading;
+using System.Xml.Serialization;
 using Shared.Logging;
 
 namespace Shared.Config
@@ -13,9 +13,15 @@ namespace Shared.Config
     /// <typeparam name="T">Data class type</typeparam>
     public class PersistentConfig<T> : IDisposable where T : class, INotifyPropertyChanged, new()
     {
+        private const int SaveDelay = 500;
         private T data;
         private Timer saveConfigTimer;
-        private const int SaveDelay = 500;
+
+        private PersistentConfig(string path, T data = null)
+        {
+            Path = path;
+            Data = data;
+        }
 
         private string Path { get; }
 
@@ -32,12 +38,25 @@ namespace Shared.Config
             }
         }
 
-        ~PersistentConfig() => Dispose();
-
-        private PersistentConfig(string path, T data = null)
+        public void Dispose()
         {
-            Path = path;
-            Data = data;
+            try
+            {
+                if (Data is INotifyPropertyChanged d)
+                    d.PropertyChanged -= OnPropertyChanged;
+
+                saveConfigTimer?.Dispose();
+                Save();
+            }
+            catch
+            {
+                // Ignored
+            }
+        }
+
+        ~PersistentConfig()
+        {
+            Dispose();
         }
 
         private void SaveLater()
@@ -48,7 +67,10 @@ namespace Shared.Config
             saveConfigTimer.Change(SaveDelay, -1);
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) => SaveLater();
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            SaveLater();
+        }
 
         public static PersistentConfig<T> Load(IPluginLogger log, string path)
         {
@@ -93,22 +115,6 @@ namespace Shared.Config
             // corrected by the next scheduled save operation after SaveDelay milliseconds.
             using (var text = File.CreateText(path))
                 new XmlSerializer(typeof(T)).Serialize(text, Data);
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                if (Data is INotifyPropertyChanged d)
-                    d.PropertyChanged -= OnPropertyChanged;
-
-                saveConfigTimer?.Dispose();
-                Save();
-            }
-            catch
-            {
-                // Ignored
-            }
         }
     }
 }

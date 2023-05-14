@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<PluginManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>PicassoGrids</Name>
-  <Guid>71b1fe05-d32a-4609-9c20-0282bf29f149</Guid>
-  <Repository>PicassoGrids</Repository>
-  <Version>v1.0.0</Version>
-</PluginManifest>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using ClientPlugin.GUI;
 using HarmonyLib;
 using Sandbox.Graphics.GUI;
@@ -16,21 +17,21 @@ namespace ClientPlugin
     public class Plugin : IPlugin, ICommonPlugin
     {
         public const string Name = "PicassoGrids";
+        private static readonly IPluginLogger Logger = new PluginLogger(Name);
+        private static readonly string ConfigFileName = $"{Name}.cfg";
+
+        private static bool initialized;
+        private static bool failed;
+        private PersistentConfig<PluginConfig> config;
         public static Plugin Instance { get; private set; }
 
         public long Tick { get; private set; }
 
         public IPluginLogger Log => Logger;
-        private static readonly IPluginLogger Logger = new PluginLogger(Name);
 
         public IPluginConfig Config => config?.Data;
-        private PersistentConfig<PluginConfig> config;
-        private static readonly string ConfigFileName = $"{Name}.cfg";
 
-        private static bool initialized;
-        private static bool failed;
-
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void Init(object gameInstance)
         {
             Instance = this;
@@ -107,12 +108,12 @@ namespace ClientPlugin
 
         private void Initialize()
         {
-            // TODO: Put your one time initialization code here. It is executed on first update, not on loading the plugin.
+            PaintJob.Instance.Initialize();
         }
 
         private void CustomUpdate()
         {
-            // TODO: Put your update code here. It is called on every simulation frame!
+            // Update code here. It is called on every simulation frame!
         }
 
 

@@ -1,14 +1,22 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-
 #if !TORCH
 
 namespace Shared.Config
 {
-    public class PluginConfig: IPluginConfig
+    public class PluginConfig : IPluginConfig
     {
+
+        private bool enabled = true;
         public event PropertyChangedEventHandler PropertyChanged;
+        // TODO: Implement your config fields
+
+        public bool Enabled
+        {
+            get => enabled;
+            set => SetValue(ref enabled, value);
+        }
 
         private void SetValue<T>(ref T field, T value, [CallerMemberName] string propName = "")
         {
@@ -22,20 +30,11 @@ namespace Shared.Config
 
         private void OnPropertyChanged([CallerMemberName] string propName = "")
         {
-            PropertyChangedEventHandler propertyChanged = PropertyChanged;
+            var propertyChanged = PropertyChanged;
             if (propertyChanged == null)
                 return;
 
             propertyChanged(this, new PropertyChangedEventArgs(propName));
-        }
-
-        private bool enabled = true;
-        // TODO: Implement your config fields
-
-        public bool Enabled
-        {
-            get => enabled;
-            set => SetValue(ref enabled, value);
         }
 
         // TODO: Encapsulate them as properties
