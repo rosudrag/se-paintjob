@@ -2,7 +2,9 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using ClientPlugin.GUI;
+using DryIoc;
 using HarmonyLib;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Shared.Config;
 using Shared.Logging;
@@ -22,7 +24,9 @@ namespace ClientPlugin
 
         private static bool initialized;
         private static bool failed;
+        private Container _container;
         private PersistentConfig<PluginConfig> config;
+        private IPaintApp _app => _container.Resolve<IPaintApp>();
         public static Plugin Instance { get; private set; }
 
         public long Tick { get; private set; }
@@ -69,6 +73,11 @@ namespace ClientPlugin
 
         public void Update()
         {
+            if (MySession.Static == null)
+            {
+                return;
+            }
+
             EnsureInitialized();
             try
             {
@@ -108,12 +117,13 @@ namespace ClientPlugin
 
         private void Initialize()
         {
-            PaintJob.Instance.Initialize();
+            _container = IoC.Init(Logger);
+            _app.Initialize();
         }
 
         private void CustomUpdate()
         {
-            // Update code here. It is called on every simulation frame!
+            _app.CustomUpdate();
         }
 
 

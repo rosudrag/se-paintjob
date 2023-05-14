@@ -8,31 +8,18 @@ using VRageMath;
 
 namespace ClientPlugin
 {
-    public class PaintJobStateSystem
+
+    public class PaintJobStateSystem : IPaintJobStateSystem
     {
-        public static readonly PaintJobStateSystem Instance = new PaintJobStateSystem();
         private readonly Dictionary<string, Color> _colorDictionary = new Dictionary<string, Color>();
         private readonly List<Color> _colors = new List<Color>();
+        private readonly IPaintJobHelpSystem _helpSystem;
         private Style _currentStyle = Style.Rudimentary;
 
-
-        private PaintJobStateSystem()
+        public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
         {
+            _helpSystem = helpSystem;
             InitializeColorDictionary();
-        }
-
-        private void InitializeColorDictionary()
-        {
-            var colorType = typeof(Color);
-            var colorProperties = colorType.GetProperties(BindingFlags.Public | BindingFlags.Static)
-                .Where(p => p.PropertyType == colorType);
-
-            foreach (var colorProperty in colorProperties)
-            {
-                var colorName = colorProperty.Name;
-                var colorValue = (Color)colorProperty.GetValue(null);
-                _colorDictionary[colorName] = colorValue;
-            }
         }
 
         public void ListColors()
@@ -61,7 +48,6 @@ namespace ClientPlugin
             }
 
             var colorName = args[0];
-            colorName = colorName.ToLower();
             if (_colorDictionary.TryGetValue(colorName, out var color))
             {
                 _colors.Add(color);
@@ -70,6 +56,7 @@ namespace ClientPlugin
             else
             {
                 MyAPIGateway.Utilities.ShowNotification($"Invalid color '{colorName}'.", 5000, MyFontEnum.Red);
+                _helpSystem.ShowValidValues("Valid Colors", _colorDictionary.Select(x => x.Key));
             }
         }
 
@@ -104,8 +91,8 @@ namespace ClientPlugin
         {
             return _colors;
         }
-        
-        
+
+
         public void SetStyle(Style style)
         {
             _currentStyle = style;
@@ -114,6 +101,20 @@ namespace ClientPlugin
         public Style GetCurrentStyle()
         {
             return _currentStyle;
+        }
+
+        private void InitializeColorDictionary()
+        {
+            var colorType = typeof(Color);
+            var colorProperties = colorType.GetProperties(BindingFlags.Public | BindingFlags.Static)
+                .Where(p => p.PropertyType == colorType);
+
+            foreach (var colorProperty in colorProperties)
+            {
+                var colorName = colorProperty.Name;
+                var colorValue = (Color)colorProperty.GetValue(null);
+                _colorDictionary[colorName] = colorValue;
+            }
         }
     }
 

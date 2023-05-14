@@ -5,15 +5,9 @@ using VRageMath;
 
 namespace ClientPlugin.PaintAlgorithms
 {
-    public abstract class PaintAlgorithm
+    public class RudimentaryPaint : PaintAlgorithm
     {
-        protected readonly PaintJobStateSystem _state = PaintJobStateSystem.Instance;
-
-        public abstract void Apply(IMyCubeGrid grid);
-    }
-    public class RudimentaryPaint: PaintAlgorithm
-    {
-        public static readonly RudimentaryPaint Instance = new RudimentaryPaint();
+        private static IPaintJobStateSystem _state => IoC.Resolve<IPaintJobStateSystem>();
 
         public override void Apply(IMyCubeGrid grid)
         {

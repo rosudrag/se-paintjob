@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+    <Import Project="..\packages\DryIoc.4.8.8\build\DryIoc.props" Condition="Exists('..\packages\DryIoc.4.8.8\build\DryIoc.props')"/>
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -138,7 +139,7 @@
         <Reference Include="Steamworks.NET, Culture=neutral, PublicKeyToken=null">
             <HintPath>..\Bin64\Steamworks.NET.dll</HintPath>
         </Reference>
-        <Reference Include="System" />
+        <Reference Include="System"/>
         <Reference Include="System.AppContext, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
             <HintPath>..\Bin64\System.AppContext.dll</HintPath>
         </Reference>
@@ -178,8 +179,8 @@
         <Reference Include="System.Console, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
             <HintPath>..\Bin64\System.Console.dll</HintPath>
         </Reference>
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
         <Reference Include="System.Data.Common, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
             <HintPath>..\Bin64\System.Data.Common.dll</HintPath>
         </Reference>
@@ -435,11 +436,11 @@
         <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
             <HintPath>..\Bin64\System.ValueTuple.dll</HintPath>
         </Reference>
-        <Reference Include="System.Xml" />
+        <Reference Include="System.Xml"/>
         <Reference Include="System.Xml.ReaderWriter, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
             <HintPath>..\Bin64\System.Xml.ReaderWriter.dll</HintPath>
         </Reference>
-        <Reference Include="System.Xml.Serialization" />
+        <Reference Include="System.Xml.Serialization"/>
         <Reference Include="System.Xml.XDocument, Version=4.0.11.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
             <HintPath>..\Bin64\System.Xml.XDocument.dll</HintPath>
         </Reference>
@@ -520,28 +521,40 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="CommandInterpreter.cs" />
-        <Compile Include="GridUtilities.cs" />
-        <Compile Include="GUI\MyPluginConfigDialog.cs" />
-        <Compile Include="PaintAlgorithms\RudimentaryPaint.cs" />
-        <Compile Include="PaintJob.cs" />
-        <Compile Include="PaintJobHelpSystem.cs" />
-        <Compile Include="PaintJobStateSystem.cs" />
-        <Compile Include="Plugin.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Style.cs" />
+        <Compile Include="CommandInterpreter.cs"/>
+        <Compile Include="DryIoc\Container.cs"/>
+        <Compile Include="DryIoc\Expression.cs"/>
+        <Compile Include="DryIoc\FastExpressionCompiler.cs"/>
+        <Compile Include="DryIoc\ImTools.cs"/>
+        <Compile Include="GridUtilities.cs"/>
+        <Compile Include="GUI\MyPluginConfigDialog.cs"/>
+        <Compile Include="ICommandInterpreter.cs"/>
+        <Compile Include="IoC.cs"/>
+        <Compile Include="IPaintApp.cs"/>
+        <Compile Include="IPaintJob.cs"/>
+        <Compile Include="IPaintJobHelpSystem.cs"/>
+        <Compile Include="IPaintJobStateSystem.cs"/>
+        <Compile Include="PaintAlgorithms\PaintAlgorithm.cs"/>
+        <Compile Include="PaintAlgorithms\RudimentaryPaint.cs"/>
+        <Compile Include="PaintApp.cs"/>
+        <Compile Include="PaintJob.cs"/>
+        <Compile Include="PaintJobHelpSystem.cs"/>
+        <Compile Include="PaintJobStateSystem.cs"/>
+        <Compile Include="Plugin.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Style.cs"/>
     </ItemGroup>
     <ItemGroup>
-        <Content Include="deploy.bat" />
-        <Content Include="Kill-Space-Engineers.bat" />
-        <Content Include="PluginHub.xml" />
+        <Content Include="deploy.bat"/>
+        <Content Include="Kill-Space-Engineers.bat"/>
+        <Content Include="PluginHub.xml"/>
     </ItemGroup>
     <ItemGroup>
-        <None Include="App.config" />
-        <None Include="packages.config" />
+        <None Include="App.config"/>
+        <None Include="packages.config"/>
     </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <Import Project="..\Shared\Shared.projitems" Label="Shared"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
@@ -552,4 +565,10 @@
     <PropertyGroup>
         <PostBuildEvent>call "$(ProjectDir)\deploy.bat" "$(TargetPath)" "$(SolutionName)"</PostBuildEvent>
     </PropertyGroup>
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+        </PropertyGroup>
+        <Error Condition="!Exists('..\packages\DryIoc.4.8.8\build\DryIoc.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\DryIoc.4.8.8\build\DryIoc.props'))"/>
+    </Target>
 </Project>
