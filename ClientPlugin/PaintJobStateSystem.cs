@@ -116,7 +116,6 @@ namespace ClientPlugin
         {
             var state = new SerializableState
             {
-                ColorDictionary = _colorDictionary,
                 Colors = _colors,
                 CurrentStyle = _currentStyle
             };
@@ -143,12 +142,6 @@ namespace ClientPlugin
                 using (var stringReader = new StringReader(serializedXml))
                 {
                     var state = (SerializableState)serializer.Deserialize(stringReader);
-
-                    _colorDictionary.Clear();
-                    foreach (var item in state.ColorDictionary)
-                    {
-                        _colorDictionary.Add(item.Key, item.Value);
-                    }
 
                     _colors.Clear();
                     _colors.AddRange(state.Colors);
@@ -187,7 +180,6 @@ namespace ClientPlugin
         [Serializable]
         public class SerializableState
         {
-            public Dictionary<string, Color> ColorDictionary { get; set; }
             public List<Color> Colors { get; set; }
             public Style CurrentStyle { get; set; }
         }

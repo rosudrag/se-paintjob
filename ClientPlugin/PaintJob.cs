@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ClientPlugin.PaintAlgorithms;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -20,32 +21,45 @@ namespace ClientPlugin
                     Style.Rudimentary, new RudimentaryPaint(stateSystem)
                 },
                 {
-                    Style.Test, new ThemedPaintAlgorithm(stateSystem)
+                    Style.Test, new FadedPaint(stateSystem)
                 }
             };
         }
         public void Run()
         {
-            var targetGrid = GridUtilities.GetGridInFrontOfPlayer();
-
-            if (targetGrid != null)
+            var currentStyle = _stateSystem.GetCurrentStyle();
+            if (!_algorithms.ContainsKey(currentStyle))
             {
-                var currentStyle = _stateSystem.GetCurrentStyle();
-                if (!_algorithms.ContainsKey(currentStyle))
+                MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
+                return;
+            }
+            
+            var paintAlgorithm = _algorithms[currentStyle];
+
+            try
+            {
+                var targetGrid = GridUtilities.GetGridInFrontOfPlayer();
+
+                if (targetGrid != null)
                 {
-                    MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
+                    paintAlgorithm.Apply(targetGrid as MyCubeGrid);
+
+                    MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
                 }
-
-                var paintAlgorithm = _algorithms[currentStyle];
-                paintAlgorithm.Apply(targetGrid as MyCubeGrid);
-                paintAlgorithm.Clean();
-
-                MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
+                else
+                {
+                    MyAPIGateway.Utilities.ShowNotification("No grid found in front of the player.", 5000, MyFontEnum.Red);
+                }
             }
-            else
+            catch (Exception e)
             {
-                MyAPIGateway.Utilities.ShowNotification("No grid found in front of the player.", 5000, MyFontEnum.Red);
+                MyAPIGateway.Utilities.ShowMessage("Logger", $"{e.Message}");
             }
+            finally
+            {
+                paintAlgorithm.Clean();
+            }
+
         }
     }
 

@@ -7,8 +7,8 @@ namespace ClientPlugin.PaintFactors
 {
     public interface IColorFactor : ICleanable
     {
-        bool AppliesTo(MySlimBlock block);
-        Color GetColor(MySlimBlock block, IList<Color> colors, Vector3I gridSize, Vector3I relativePos, MyCubeGrid grid);
+        bool AppliesTo(MySlimBlock block, MyCubeGrid grid);
+        Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors);
     }
 
     public interface ICleanable
