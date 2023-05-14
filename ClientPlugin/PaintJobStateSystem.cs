@@ -13,8 +13,10 @@ namespace ClientPlugin
         public static readonly PaintJobStateSystem Instance = new PaintJobStateSystem();
         private readonly Dictionary<string, Color> _colorDictionary = new Dictionary<string, Color>();
         private readonly List<Color> _colors = new List<Color>();
+        private Style _currentStyle = Style.Rudimentary;
 
-        public PaintJobStateSystem()
+
+        private PaintJobStateSystem()
         {
             InitializeColorDictionary();
         }
@@ -102,5 +104,17 @@ namespace ClientPlugin
         {
             return _colors;
         }
+        
+        
+        public void SetStyle(Style style)
+        {
+            _currentStyle = style;
+        }
+
+        public Style GetCurrentStyle()
+        {
+            return _currentStyle;
+        }
     }
+
 }

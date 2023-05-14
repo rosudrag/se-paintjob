@@ -41,6 +41,9 @@ namespace ClientPlugin
                 },
                 {
                     "run", args => _paintJob.Run()
+                },
+                {
+                    "style", args => _stateSystem.SetStyle(Enum.TryParse<Style>(args[0], out var style) ? style : Style.Rudimentary )
                 }
             };
         }

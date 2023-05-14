@@ -3,13 +3,19 @@ using Sandbox.Game.Entities;
 using VRage.Game.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin
+namespace ClientPlugin.PaintAlgorithms
 {
-    public class PaintAlgorithm
+    public abstract class PaintAlgorithm
     {
-        private readonly PaintJobStateSystem _state = PaintJobStateSystem.Instance;
+        protected readonly PaintJobStateSystem _state = PaintJobStateSystem.Instance;
 
-        public void ApplyRudimentary(IMyCubeGrid grid)
+        public abstract void Apply(IMyCubeGrid grid);
+    }
+    public class RudimentaryPaint: PaintAlgorithm
+    {
+        public static readonly RudimentaryPaint Instance = new RudimentaryPaint();
+
+        public override void Apply(IMyCubeGrid grid)
         {
             if (grid is MyCubeGrid targetCubeGrid)
             {

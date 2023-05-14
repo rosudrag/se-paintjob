@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using ClientPlugin.PaintAlgorithms;
 using Sandbox.Game.GameSystems.Chat;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
@@ -11,6 +13,17 @@ namespace ClientPlugin
     {
         public static readonly PaintJob Instance = new PaintJob();
         private readonly CommandInterpreter _interpreter = CommandInterpreter.Instance;
+        private readonly PaintJobStateSystem _state = PaintJobStateSystem.Instance;
+        private readonly Dictionary<Style, PaintAlgorithm> _algorithms;
+
+        private PaintJob()
+        {
+            _algorithms = new Dictionary<Style, PaintAlgorithm>
+            {
+                { Style.Rudimentary, RudimentaryPaint.Instance }
+            };
+        }
+
         public void Initialize()
         {
             if (!MySession.Static.ChatSystem.CommandSystem.ChatCommands.ContainsKey("/paint"))
@@ -21,6 +34,7 @@ namespace ClientPlugin
         }
 
         [ChatCommand("/paint", "paints grids", "")]
+        // ReSharper disable once UnusedMember.Global
         public void PaintCommand(string[] args)
         {
             _interpreter.Interpret(args);
@@ -32,10 +46,15 @@ namespace ClientPlugin
 
             if (targetGrid != null)
             {
-                var paintAlgorithm = new PaintAlgorithm();
-                paintAlgorithm.ApplyRudimentary(targetGrid);
+                var currentStyle = _state.GetCurrentStyle();
+                if (!_algorithms.ContainsKey(currentStyle))
+                {
+                    MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
+                }
 
-                MyAPIGateway.Utilities.ShowNotification("Grid painted with the first color in the state.", 5000, MyFontEnum.Green);
+                _algorithms[currentStyle].Apply(targetGrid);
+
+                MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
             }
             else
             {
