@@ -1,9 +1,18 @@
-using VRage.Game.ModAPI;
+using ClientPlugin.PaintFactors;
+using Sandbox.Game.Entities;
 
 namespace ClientPlugin.PaintAlgorithms
 {
-    public abstract class PaintAlgorithm
+    public abstract class PaintAlgorithm : ICleanable
     {
-        public abstract void Apply(IMyCubeGrid grid);
+        protected readonly IPaintJobStateSystem StateSystem;
+
+        protected PaintAlgorithm(IPaintJobStateSystem stateSystem)
+        {
+            StateSystem = stateSystem;
+        }
+        public abstract void Clean();
+
+        public abstract void Apply(MyCubeGrid grid);
     }
 }

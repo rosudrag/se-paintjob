@@ -14,7 +14,7 @@ namespace ClientPlugin
         private readonly Dictionary<string, Color> _colorDictionary = new Dictionary<string, Color>();
         private readonly List<Color> _colors = new List<Color>();
         private readonly IPaintJobHelpSystem _helpSystem;
-        private Style _currentStyle = Style.Rudimentary;
+        private Style _currentStyle = Style.Test;
 
         public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
         {
@@ -117,7 +117,7 @@ namespace ClientPlugin
                 var colorValue = (Color)colorProperty.GetValue(null);
                 _colorDictionary[colorName] = colorValue;
             }
-            
+
             _helpSystem.WithColors(_colorDictionary.Select(x => x.Key));
         }
     }

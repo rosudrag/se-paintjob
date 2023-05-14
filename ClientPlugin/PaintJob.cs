@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ClientPlugin.PaintAlgorithms;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game;
 
@@ -16,7 +17,10 @@ namespace ClientPlugin
             _algorithms = new Dictionary<Style, PaintAlgorithm>
             {
                 {
-                    Style.Rudimentary, new RudimentaryPaint()
+                    Style.Rudimentary, new RudimentaryPaint(stateSystem)
+                },
+                {
+                    Style.Test, new ThemedPaintAlgorithm(stateSystem)
                 }
             };
         }
@@ -32,7 +36,9 @@ namespace ClientPlugin
                     MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
                 }
 
-                _algorithms[currentStyle].Apply(targetGrid);
+                var paintAlgorithm = _algorithms[currentStyle];
+                paintAlgorithm.Apply(targetGrid as MyCubeGrid);
+                paintAlgorithm.Clean();
 
                 MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
             }

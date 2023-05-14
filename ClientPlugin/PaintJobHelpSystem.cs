@@ -14,7 +14,7 @@ namespace ClientPlugin
             var sb = new StringBuilder();
             sb.AppendLine("Grid painter plugin");
             sb.AppendLine("--- --- --- --- --- ---");
-            sb.AppendLine(); 
+            sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine("Value commands:");
             sb.AppendLine();
@@ -38,8 +38,8 @@ namespace ClientPlugin
             sb.AppendLine("Valid colors:");
             sb.AppendLine(_colorsAsList);
             sb.AppendLine("--- --- --- ---");
-            
-                       
+
+
             // Show a popup with help text
             MyAPIGateway.Utilities.ShowMissionScreen("Paint Job Help", "", "", sb.ToString(), null, "Close");
         }

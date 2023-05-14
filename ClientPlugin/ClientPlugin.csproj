@@ -536,7 +536,12 @@
         <Compile Include="IPaintJobStateSystem.cs"/>
         <Compile Include="PaintAlgorithms\PaintAlgorithm.cs"/>
         <Compile Include="PaintAlgorithms\RudimentaryPaint.cs"/>
+        <Compile Include="PaintAlgorithms\TestAlgorithm.cs"/>
         <Compile Include="PaintApp.cs"/>
+        <Compile Include="PaintFactors\DefaultColorFactor.cs"/>
+        <Compile Include="PaintFactors\IColorFactor.cs"/>
+        <Compile Include="PaintFactors\LightColorFactor.cs"/>
+        <Compile Include="PaintFactors\ThrusterColorFactor.cs"/>
         <Compile Include="PaintJob.cs"/>
         <Compile Include="PaintJobHelpSystem.cs"/>
         <Compile Include="PaintJobStateSystem.cs"/>
