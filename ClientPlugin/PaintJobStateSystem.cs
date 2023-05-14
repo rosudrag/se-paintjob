@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Serialization;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRageMath;
@@ -13,7 +17,10 @@ namespace ClientPlugin
     {
         private readonly Dictionary<string, Color> _colorDictionary = new Dictionary<string, Color>();
         private readonly List<Color> _colors = new List<Color>();
+
         private readonly IPaintJobHelpSystem _helpSystem;
+        private readonly string _stateFilePath = "PaintJobState.xml";
+        private readonly string _stateHashFilePath = "PaintJobStateHash.txt";
         private Style _currentStyle = Style.Test;
 
         public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
@@ -105,6 +112,62 @@ namespace ClientPlugin
             return _currentStyle;
         }
 
+        public void Save()
+        {
+            var state = new SerializableState
+            {
+                ColorDictionary = _colorDictionary,
+                Colors = _colors,
+                CurrentStyle = _currentStyle
+            };
+
+            var serializer = new XmlSerializer(typeof(SerializableState));
+            using (var stringWriter = new StringWriter())
+            {
+                serializer.Serialize(stringWriter, state);
+                var serializedXml = stringWriter.ToString();
+
+                var encodedXml = Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedXml));
+                File.WriteAllText(_stateFilePath, encodedXml);
+            }
+        }
+
+        public void Load()
+        {
+            if (File.Exists(_stateFilePath))
+            {
+                var encodedXml = File.ReadAllText(_stateFilePath);
+                var serializedXml = Encoding.UTF8.GetString(Convert.FromBase64String(encodedXml));
+
+                var serializer = new XmlSerializer(typeof(SerializableState));
+                using (var stringReader = new StringReader(serializedXml))
+                {
+                    var state = (SerializableState)serializer.Deserialize(stringReader);
+
+                    _colorDictionary.Clear();
+                    foreach (var item in state.ColorDictionary)
+                    {
+                        _colorDictionary.Add(item.Key, item.Value);
+                    }
+
+                    _colors.Clear();
+                    _colors.AddRange(state.Colors);
+
+                    _currentStyle = state.CurrentStyle;
+                }
+            }
+        }
+
+        private string CalculateHash(string input)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(input);
+                var hashBytes = sha256.ComputeHash(bytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
         private void InitializeColorDictionary()
         {
             var colorType = typeof(Color);
@@ -119,6 +182,14 @@ namespace ClientPlugin
             }
 
             _helpSystem.WithColors(_colorDictionary.Select(x => x.Key));
+        }
+
+        [Serializable]
+        public class SerializableState
+        {
+            public Dictionary<string, Color> ColorDictionary { get; set; }
+            public List<Color> Colors { get; set; }
+            public Style CurrentStyle { get; set; }
         }
     }
 

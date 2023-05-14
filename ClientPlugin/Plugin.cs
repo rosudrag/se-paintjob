@@ -60,8 +60,7 @@ namespace ClientPlugin
         {
             try
             {
-                // TODO: Save state and close resources here, called when the game exists (not guaranteed!)
-                // IMPORTANT: Do NOT call harmony.UnpatchAll() here! It may break other plugins.
+                _app.Save();
             }
             catch (Exception ex)
             {

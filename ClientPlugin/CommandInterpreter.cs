@@ -40,6 +40,12 @@ namespace ClientPlugin
                 },
                 {
                     "style", args => stateSystem.SetStyle(Enum.TryParse<Style>(args[0], out var style) ? style : Style.Rudimentary)
+                },
+                {
+                    "save", _ => stateSystem.Save()
+                },
+                {
+                    "load", _ => stateSystem.Load()
                 }
             };
         }

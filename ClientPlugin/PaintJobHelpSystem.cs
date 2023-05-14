@@ -27,6 +27,8 @@ namespace ClientPlugin
             sb.AppendLine("/paint exec      --- run paint job, point towards a grid");
             sb.AppendLine("/paint run       --- run paint job, point towards a grid");
             sb.AppendLine("/paint style     --- select style of painting");
+            sb.AppendLine("/paint save      --- save state");
+            sb.AppendLine("/paint load      --- load state");
             sb.AppendLine("--- --- --- ---");
             sb.AppendLine("Valid styles:");
             foreach (var style in Enum.GetNames(typeof(Style)))

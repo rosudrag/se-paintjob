@@ -11,5 +11,7 @@ namespace ClientPlugin
         IEnumerable<Color> GetColors();
         void SetStyle(Style style);
         Style GetCurrentStyle();
+        void Load();
+        void Save();
     }
 }
