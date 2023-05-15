@@ -1,6 +1,7 @@
-﻿using Sandbox.ModAPI;
+﻿using PaintJob.App.Systems;
+using Sandbox.ModAPI;
 
-namespace ClientPlugin.App
+namespace PaintJob.App
 {
     public class PaintApp : IPaintApp
     {

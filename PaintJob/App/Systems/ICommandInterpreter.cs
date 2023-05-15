@@ -1,4 +1,4 @@
-namespace ClientPlugin.App
+namespace PaintJob.App.Systems
 {
     public interface ICommandInterpreter
     {

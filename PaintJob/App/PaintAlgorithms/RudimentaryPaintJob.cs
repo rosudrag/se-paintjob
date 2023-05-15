@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using ClientPlugin.App.PaintFactors;
+using PaintJob.App.PaintFactors;
 using Sandbox.Game.Entities;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintAlgorithms
+namespace PaintJob.App.PaintAlgorithms
 {
     public class RudimentaryPaintJob : PaintAlgorithm
     {
-        private readonly Dictionary<Vector3I, Color> _colorCache;
+        private Dictionary<Vector3I, Color> _colorCache;
         private readonly List<IColorFactor> _colorFactors;
 
-        public RudimentaryPaintJob(IPaintJobStateSystem stateSystem) : base(stateSystem)
+        public RudimentaryPaintJob()
         {
             _colorFactors = new List<IColorFactor>
             {
@@ -34,26 +33,18 @@ namespace ClientPlugin.App.PaintAlgorithms
 
         public override void Apply(MyCubeGrid grid)
         {
-            var colors = StateSystem.GetColors().ToList();
-            var blocks = grid.GetBlocks();
-
             // Compute the color changes and store them in the cache
             foreach (var factor in _colorFactors)
             {
-                foreach (var block in blocks)
-                {
-                    if (factor.AppliesTo(block, grid))
-                    {
-                        var currentColor = _colorCache.TryGetValue(block.Position, out var value) ? value : block.ColorMaskHSV.HSVtoColor();
-                        var newColor = factor.GetColor(block, grid, currentColor, colors);
-                        _colorCache[block.Position] = newColor;
-                    }
-                }
+                _colorCache = factor.Apply(grid, _colorCache);
             }
 
+            var blocks = grid.GetBlocks();
             foreach (var block in blocks)
             {
-                var color = _colorCache[block.Position].ColorToHSVDX11();
+                if (!_colorCache.TryGetValue(block.Position, out var value))
+                    continue;
+                var color = value.ColorToHSVDX11();
                 var original = block.ColorMaskHSV;
                 if (original != color)
                 {

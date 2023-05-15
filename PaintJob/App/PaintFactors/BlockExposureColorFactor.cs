@@ -1,32 +1,32 @@
 ﻿using System.Collections.Generic;
+using MonoMod.Utils;
+using PaintJob.App.Extensions;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintFactors
+namespace PaintJob.App.PaintFactors
 {
-    public class BlockExposureColorFactor : IColorFactor
+    public class BlockExposureColorFactor : BaseFactor
     {
         private const float ExposureDarkenPercentage = 0.3f;
         private const float InteriorLightenPercentage = 0.4f;
 
-        public bool AppliesTo(MySlimBlock block, MyCubeGrid grid)
+        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
         {
-            return true; // This factor applies to all blocks
-        }
+            var result = new Dictionary<Vector3I, Color>();
+            result.AddRange(currentColors);
+            var blocks = grid.GetBlocks();
 
-        public Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors)
-        {
-            if (GridUtilities.IsExteriorBlock(block, grid))
+            foreach (var block in blocks)
             {
-                return current.Darken(ExposureDarkenPercentage);
+                if (GridUtilities.IsExteriorBlock(block, grid))
+                {
+                    var current = currentColors[block.Position];
+                    result[block.Position] = current.Darken(ExposureDarkenPercentage);
+                }
             }
-            return current;
-        }
 
-        public void Clean()
-        {
-            // No cleanup required for this factor
+            return result;
         }
     }
 }

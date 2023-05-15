@@ -1,6 +1,7 @@
-﻿using ClientPlugin.App;
-using ClientPlugin.Shared.Logging;
+﻿using ClientPlugin.Shared.Logging;
 using DryIoc;
+using PaintJob.App;
+using PaintJob.App.Systems;
 
 namespace ClientPlugin
 {
@@ -21,7 +22,7 @@ namespace ClientPlugin
             r.Register<ICommandInterpreter, CommandInterpreter>(Reuse.Singleton);
             r.Register<IPaintJobHelpSystem, PaintJobHelpSystem>(Reuse.Singleton);
             r.Register<IPaintJobStateSystem, PaintJobStateSystem>(Reuse.Singleton);
-            r.Register<IPaintJob, PaintJob>(Reuse.Singleton);
+            r.Register<IPaintJob, PaintJob.App.PaintJob>(Reuse.Singleton);
         }
         public static T Resolve<T>()
         {

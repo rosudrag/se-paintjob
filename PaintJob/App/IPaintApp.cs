@@ -1,4 +1,4 @@
-﻿namespace ClientPlugin.App
+﻿namespace PaintJob.App
 {
     public interface IPaintApp
     {

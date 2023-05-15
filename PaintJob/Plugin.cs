@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using ClientPlugin.App;
 using ClientPlugin.GUI;
 using ClientPlugin.Shared.Config;
 using ClientPlugin.Shared.Logging;
@@ -9,6 +8,7 @@ using ClientPlugin.Shared.Patches;
 using ClientPlugin.Shared.Plugin;
 using DryIoc;
 using HarmonyLib;
+using PaintJob.App;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using VRage.FileSystem;

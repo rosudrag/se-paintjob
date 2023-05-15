@@ -1,24 +1,29 @@
 ﻿using System.Collections.Generic;
+using MonoMod.Utils;
+using PaintJob.App.Extensions;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintFactors
+namespace PaintJob.App.PaintFactors
 {
-    public class EdgeBlockColorFactor : IColorFactor
+    public class EdgeBlockColorFactor : BaseFactor
     {
-        public bool AppliesTo(MySlimBlock block, MyCubeGrid grid)
+        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
         {
-            return GridUtilities.IsEdgeBlock(block, grid);
-        }
+            var result = new Dictionary<Vector3I, Color>();
+            result.AddRange(currentColors);
+            
+            var blocks = grid.GetBlocks();
+            foreach (var block in blocks)
+            {
+                if (GridUtilities.IsEdgeBlock(block, grid))
+                {
+                    var current = result[block.Position];
+                    result[block.Position] = current.Lighten(0.5f);
+                }
+            }
 
-        public Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors)
-        {
-            return current.Lighten(0.5f);
-        }
-
-        public void Clean()
-        {
+            return result;
         }
     }
 }

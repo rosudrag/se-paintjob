@@ -1,7 +1,7 @@
 ﻿using System;
 using VRageMath;
 
-namespace ClientPlugin.App
+namespace PaintJob.App.Extensions
 {
     public static class ColorExtensions
     {

@@ -1,78 +1,82 @@
 ﻿using System.Collections.Generic;
+using MonoMod.Utils;
+using PaintJob.App.Extensions;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintFactors
+namespace PaintJob.App.PaintFactors
 {
-    public class LightBlockColorFactor : IColorFactor
+    public class LightBlockColorFactor : BaseFactor
     {
-        // TODO: use the first factor for block color BUT because it is a light block 
-        // we can set the light settings as such: red light if PORT side and green light if starboard side
-        public bool AppliesTo(MySlimBlock block, MyCubeGrid grid)
+        private static bool AppliesTo(MySlimBlock block, MyCubeGrid grid)
         {
             var type = block.BlockDefinition.Id.TypeId;
-            return type == typeof(MyObjectBuilder_LightingBlock) ||
-                   type == typeof(MyObjectBuilder_InteriorLight) ||
-                   type == typeof(MyObjectBuilder_ReflectorLight) ||
-                   type == typeof(MyObjectBuilder_SignalLight);
+            return GridUtilities.IsExteriorBlock(block, grid) &&
+                   (type == typeof(MyObjectBuilder_LightingBlock) ||
+                    type == typeof(MyObjectBuilder_InteriorLight) ||
+                    type == typeof(MyObjectBuilder_ReflectorLight) ||
+                    type == typeof(MyObjectBuilder_SignalLight));
         }
 
-        public Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors)
+        private static Color GetColor(MySlimBlock block)
         {
-            if (GridUtilities.IsExteriorBlock(block, grid))
+            // Assuming the light block is an instance of IMyLightingBlock
+            var lightBlock = block.FatBlock as IMyLightingBlock;
+            if (lightBlock == null)
+                return Color.Black;
+
+            var playerEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
+            if (playerEntity == null)
+                return Color.Black;
+
+            var playerRight = playerEntity.WorldMatrix.Right;
+            var blockToPlayer = playerEntity.WorldMatrix.Translation - block.WorldPosition;
+
+            var dotProduct = Vector3.Dot(playerRight, blockToPlayer);
+
+            if (dotProduct >= 0)
             {
-                // Assuming the light block is an instance of IMyLightingBlock
-                var lightBlock = block.FatBlock as IMyLightingBlock;
-                if (lightBlock == null)
-                    return current;
-
-                var playerEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
-                if (playerEntity == null)
-                    return current;
-
-                var playerRight = playerEntity.WorldMatrix.Right;
-                var blockToPlayer = playerEntity.WorldMatrix.Translation - block.WorldPosition;
-
-                var dotProduct = Vector3.Dot(playerRight, blockToPlayer);
-
-                if (dotProduct >= 0)
-                {
-                    // Port side - red light
-                    lightBlock.Color = Color.Red;
-                    lightBlock.BlinkIntervalSeconds = 0;
-                    lightBlock.BlinkLength = 50;
-                    lightBlock.BlinkOffset = 0;
-                    lightBlock.Intensity = 2;
-                    lightBlock.Radius = 20;
-                    lightBlock.Falloff = 1;
-                    return Color.Red;
-
-                }
-                else
-                {
-                    // Starboard side - green light
-                    lightBlock.Color = Color.Green;
-                    lightBlock.BlinkIntervalSeconds = 0;
-                    lightBlock.BlinkLength = 50;
-                    lightBlock.BlinkOffset = 0;
-                    lightBlock.Intensity = 2;
-                    lightBlock.Radius = 20;
-                    lightBlock.Falloff = 1;
-                    return Color.Green;
-                }
-
+                // Port side - red light
+                lightBlock.Color = Color.Red;
+                lightBlock.BlinkIntervalSeconds = 0;
+                lightBlock.BlinkLength = 50;
+                lightBlock.BlinkOffset = 0;
+                lightBlock.Intensity = 2;
+                lightBlock.Radius = 20;
+                lightBlock.Falloff = 1;
+                return Color.Red;
 
             }
-
-            return current;
+            // Starboard side - green light
+            lightBlock.Color = Color.Green;
+            lightBlock.BlinkIntervalSeconds = 0;
+            lightBlock.BlinkLength = 50;
+            lightBlock.BlinkOffset = 0;
+            lightBlock.Intensity = 2;
+            lightBlock.Radius = 20;
+            lightBlock.Falloff = 1;
+            return Color.Green;
         }
 
-        public void Clean()
+        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
         {
+            var result = new Dictionary<Vector3I, Color>();
+            result.AddRange(currentColors);
+            var blocks = grid.GetBlocks();
 
+            foreach (var block in blocks)
+            {
+                if (AppliesTo(block, grid))
+                {
+                    var color = GetColor(block);
+                    result[block.Position] = color;
+                }
+            }
+
+            return result;
         }
     }
 

@@ -1,40 +1,39 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintFactors
+namespace PaintJob.App.PaintFactors
 {
-    public class BaseBlockColorFactor : IColorFactor
+    public class BaseBlockColorFactor : BaseFactor
     {
         private readonly Dictionary<string, Color> _blockTypeToColor = new Dictionary<string, Color>();
 
-        public bool AppliesTo(MySlimBlock block, MyCubeGrid grid)
+        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
         {
-            return true; // This factor applies to all blocks
-        }
+            Initialize(grid);
+            var result = new Dictionary<Vector3I, Color>();
+            var blocks = grid.GetBlocks();
 
-        public Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors)
-        {
-            if (!_blockTypeToColor.Any())
+            foreach (var block in blocks)
             {
-                Initialize(grid, colors);
+                var blockType = block.BlockDefinition.Id.TypeId.ToString();
+                result[block.Position] = _blockTypeToColor[blockType];
             }
 
-            var blockType = block.BlockDefinition.Id.TypeId.ToString();
-            var result = _blockTypeToColor[blockType];
             return result;
         }
 
-        public void Clean()
+        public override void Clean()
         {
             _blockTypeToColor.Clear();
         }
 
-        private void Initialize(MyCubeGrid grid, IList<Color> colors)
+        private void Initialize(MyCubeGrid grid)
         {
+            var colors = _stateSystem.GetColors().ToArray();
+
             // Assign the first color to all non-functional blocks
             var nonFunctionalBlockTypes = grid.GetBlocks()
                 .Where(block => !(block.FatBlock is IMyFunctionalBlock))

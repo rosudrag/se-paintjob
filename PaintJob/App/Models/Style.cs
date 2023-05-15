@@ -1,4 +1,4 @@
-﻿namespace ClientPlugin.App.Models
+﻿namespace PaintJob.App.Models
 {
     public enum Style
     {

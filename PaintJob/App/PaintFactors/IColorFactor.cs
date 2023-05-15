@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using VRageMath;
 
-namespace ClientPlugin.App.PaintFactors
+namespace PaintJob.App.PaintFactors
 {
     public interface IColorFactor : ICleanable
     {
-        bool AppliesTo(MySlimBlock block, MyCubeGrid grid);
-        Color GetColor(MySlimBlock block, MyCubeGrid grid, Color current, IList<Color> colors);
+        Dictionary<Vector3I,Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors);
     }
 
     public interface ICleanable

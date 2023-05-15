@@ -4,7 +4,7 @@ using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin.App
+namespace PaintJob.App.Extensions
 {
     public static class GridUtilities
     {

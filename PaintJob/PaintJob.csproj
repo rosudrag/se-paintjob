@@ -530,6 +530,7 @@
         <Compile Include="App\PaintAlgorithms\PaintAlgorithm.cs" />
         <Compile Include="App\PaintApp.cs" />
         <Compile Include="App\PaintFactors\BaseBlockColorFactor.cs" />
+        <Compile Include="App\PaintFactors\BaseFactor.cs" />
         <Compile Include="App\PaintFactors\BlockExposureColorFactor.cs" />
         <Compile Include="App\PaintFactors\EdgeBlockColorFactor.cs" />
         <Compile Include="App\PaintFactors\IColorFactor.cs" />

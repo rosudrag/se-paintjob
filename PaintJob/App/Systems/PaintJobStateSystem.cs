@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
-using ClientPlugin.App.Models;
+using PaintJob.App.Models;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRageMath;
 
-namespace ClientPlugin.App
+namespace PaintJob.App.Systems
 {
 
     public class PaintJobStateSystem : IPaintJobStateSystem
@@ -105,9 +105,9 @@ namespace ClientPlugin.App
             
             Save();
         }
-        public IEnumerable<Color> GetColors()
+        public Color[] GetColors()
         {
-            return _colors;
+            return _colors.ToArray();
         }
 
 
