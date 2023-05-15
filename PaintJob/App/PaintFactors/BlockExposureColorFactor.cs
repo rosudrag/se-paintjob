@@ -21,7 +21,7 @@ namespace ClientPlugin.App.PaintFactors
             {
                 return current.Darken(ExposureDarkenPercentage);
             }
-            return current.Lighten(InteriorLightenPercentage);
+            return current;
         }
 
         public void Clean()

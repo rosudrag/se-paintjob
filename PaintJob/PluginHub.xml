@@ -7,7 +7,7 @@
     <Commit>TODO: Git commit hash</Commit>
     <SourceDirectories>
         <Directory>Shared</Directory>
-        <Directory>ClientPlugin</Directory>
+        <Directory>PaintJob</Directory>
     </SourceDirectories>
     <Tooltip>TODO: Short description</Tooltip>
     <Description>TODO: Long description, multiple lines.

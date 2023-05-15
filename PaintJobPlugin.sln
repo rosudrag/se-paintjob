@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientPlugin", "ClientPlugin\ClientPlugin.csproj", "{C45DBF85-2522-4772-8C8E-97755E1ED59E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaintJob", "PaintJob\PaintJob.csproj", "{C45DBF85-2522-4772-8C8E-97755E1ED59E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{7968E473-564E-466F-B3B8-B9395F501536}"
 EndProject

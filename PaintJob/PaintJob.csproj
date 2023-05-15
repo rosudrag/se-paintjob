@@ -8,8 +8,8 @@
         <ProjectGuid>{C45DBF85-2522-4772-8C8E-97755E1ED59E}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>ClientPlugin</RootNamespace>
-        <AssemblyName>PicassoGrids</AssemblyName>
+        <RootNamespace>PaintJob</RootNamespace>
+        <AssemblyName>PaintJob</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>7.3</LangVersion>
