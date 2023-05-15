@@ -1,8 +1,8 @@
 using System;
 using System.Text;
+using ClientPlugin.Shared.Plugin;
 using Sandbox;
 using Sandbox.Graphics.GUI;
-using Shared.Plugin;
 using VRage;
 using VRage.Utils;
 using VRageMath;

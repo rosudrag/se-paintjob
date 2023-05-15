@@ -1,4 +1,4 @@
-﻿namespace ClientPlugin
+﻿namespace ClientPlugin.App
 {
     public interface IPaintApp
     {

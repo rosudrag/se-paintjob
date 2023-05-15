@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
+using ClientPlugin.Shared.Logging;
 using HarmonyLib;
-using Shared.Logging;
 
-namespace Shared.Patches
+namespace ClientPlugin.Shared.Patches
 {
     // ReSharper disable once UnusedType.Global
     public static class PatchHelpers

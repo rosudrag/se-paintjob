@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using ClientPlugin.App;
 using ClientPlugin.GUI;
+using ClientPlugin.Shared.Config;
+using ClientPlugin.Shared.Logging;
+using ClientPlugin.Shared.Patches;
+using ClientPlugin.Shared.Plugin;
 using DryIoc;
 using HarmonyLib;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Shared.Config;
-using Shared.Logging;
-using Shared.Patches;
-using Shared.Plugin;
 using VRage.FileSystem;
 using VRage.Plugins;
 

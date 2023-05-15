@@ -5,7 +5,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin.PaintFactors
+namespace ClientPlugin.App.PaintFactors
 {
     public class LightBlockColorFactor : IColorFactor
     {
@@ -29,29 +29,17 @@ namespace ClientPlugin.PaintFactors
                 if (lightBlock == null)
                     return current;
 
-                var worldMatrix = grid.WorldMatrix;
-                MatrixD.Invert(ref worldMatrix, out var invertedWorldMatrix);
-                var relativePos = Vector3D.Transform(block.WorldPosition, invertedWorldMatrix);
+                var playerEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
+                if (playerEntity == null)
+                    return current;
 
-                // Get the local player's controlled entity
-                var controlledEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
-                if (controlledEntity != null)
+                var playerRight = playerEntity.WorldMatrix.Right;
+                var blockToPlayer = playerEntity.WorldMatrix.Translation - block.WorldPosition;
+
+                var dotProduct = Vector3.Dot(playerRight, blockToPlayer);
+
+                if (dotProduct >= 0)
                 {
-                    var playerOrientation = controlledEntity.WorldMatrix;
-                    var relativePosRotated = Vector3D.Transform(relativePos, MatrixD.Transpose(playerOrientation));
-
-                    if (relativePosRotated.Z > 0)
-                    {
-                        // Starboard side - green light
-                        lightBlock.Color = Color.Green;
-                        lightBlock.BlinkIntervalSeconds = 0;
-                        lightBlock.BlinkLength = 50;
-                        lightBlock.BlinkOffset = 0;
-                        lightBlock.Intensity = 2;
-                        lightBlock.Radius = 20;
-                        lightBlock.Falloff = 1;
-                        return Color.Green;
-                    }
                     // Port side - red light
                     lightBlock.Color = Color.Red;
                     lightBlock.BlinkIntervalSeconds = 0;
@@ -61,11 +49,27 @@ namespace ClientPlugin.PaintFactors
                     lightBlock.Radius = 20;
                     lightBlock.Falloff = 1;
                     return Color.Red;
+
                 }
+                else
+                {
+                    // Starboard side - green light
+                    lightBlock.Color = Color.Green;
+                    lightBlock.BlinkIntervalSeconds = 0;
+                    lightBlock.BlinkLength = 50;
+                    lightBlock.BlinkOffset = 0;
+                    lightBlock.Intensity = 2;
+                    lightBlock.Radius = 20;
+                    lightBlock.Falloff = 1;
+                    return Color.Green;
+                }
+
+
             }
+
             return current;
         }
-        
+
         public void Clean()
         {
 

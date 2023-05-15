@@ -6,11 +6,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
+using ClientPlugin.App.Models;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRageMath;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
 
     public class PaintJobStateSystem : IPaintJobStateSystem
@@ -20,7 +21,6 @@ namespace ClientPlugin
 
         private readonly IPaintJobHelpSystem _helpSystem;
         private readonly string _stateFilePath = "PaintJobState.xml";
-        private readonly string _stateHashFilePath = "PaintJobStateHash.txt";
         private Style _currentStyle = Style.Test;
 
         public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
@@ -53,20 +53,27 @@ namespace ClientPlugin
         {
             if (args.Length == 0)
             {
-                MyAPIGateway.Utilities.ShowNotification("Usage: /paint add [colorName]", 5000, MyFontEnum.Red);
+                MyAPIGateway.Utilities.ShowNotification("Usage: /paint add [colorName|hexValue]", 5000, MyFontEnum.Red);
                 return;
             }
 
-            var colorName = args[0];
-            if (_colorDictionary.TryGetValue(colorName, out var color))
+            var colorInput = args[0];
+
+            // Check if the input is a named color
+            if (_colorDictionary.TryGetValue(colorInput, out var color))
             {
                 _colors.Add(color);
-                MyAPIGateway.Utilities.ShowNotification($"Color '{colorName}' added.", 5000, MyFontEnum.Green);
+                MyAPIGateway.Utilities.ShowNotification($"Color '{colorInput}' added.", 5000, MyFontEnum.Green);
             }
             else
             {
-                MyAPIGateway.Utilities.ShowNotification($"Invalid color '{colorName}'.", 5000, MyFontEnum.Red);
+                // Check if the input is a hex color value
+                var hexToColor = VRageMath.ColorExtensions.HexToColor(colorInput);
+                _colors.Add(color);
+                MyAPIGateway.Utilities.ShowNotification($"Color {hexToColor.ToString()} added.", 5000, MyFontEnum.Green);
             }
+    
+            Save();
         }
 
         public void RemoveColor(string[] args)
@@ -95,6 +102,8 @@ namespace ClientPlugin
             {
                 MyAPIGateway.Utilities.ShowNotification($"Invalid input '{args[0]}'. Please enter a valid integer.", 5000, MyFontEnum.Red);
             }
+            
+            Save();
         }
         public IEnumerable<Color> GetColors()
         {
@@ -129,6 +138,13 @@ namespace ClientPlugin
                 var encodedXml = Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedXml));
                 File.WriteAllText(_stateFilePath, encodedXml);
             }
+        }
+        public void Reset()
+        {
+            _colors.Clear();
+            _currentStyle = Style.Test;
+            
+            Save();
         }
 
         public void Load()

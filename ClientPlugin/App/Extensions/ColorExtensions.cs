@@ -1,7 +1,7 @@
 ﻿using System;
 using VRageMath;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public static class ColorExtensions
     {

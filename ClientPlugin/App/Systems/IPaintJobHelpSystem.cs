@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public interface IPaintJobHelpSystem
     {

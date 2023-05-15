@@ -1,7 +1,7 @@
-using Shared.Config;
-using Shared.Logging;
+using ClientPlugin.Shared.Config;
+using ClientPlugin.Shared.Logging;
 
-namespace Shared.Plugin
+namespace ClientPlugin.Shared.Plugin
 {
     public interface ICommonPlugin
     {

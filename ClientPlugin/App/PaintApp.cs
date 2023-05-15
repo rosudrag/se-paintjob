@@ -1,6 +1,6 @@
 ﻿using Sandbox.ModAPI;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public class PaintApp : IPaintApp
     {

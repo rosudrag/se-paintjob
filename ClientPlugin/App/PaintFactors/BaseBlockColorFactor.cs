@@ -5,7 +5,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRageMath;
 
-namespace ClientPlugin.PaintFactors
+namespace ClientPlugin.App.PaintFactors
 {
     public class BaseBlockColorFactor : IColorFactor
     {

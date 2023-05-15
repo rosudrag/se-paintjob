@@ -1,5 +1,6 @@
-﻿using DryIoc;
-using Shared.Logging;
+﻿using ClientPlugin.App;
+using ClientPlugin.Shared.Logging;
+using DryIoc;
 
 namespace ClientPlugin
 {

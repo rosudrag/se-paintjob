@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ClientPlugin.App.Models;
 using Sandbox.ModAPI;
 using VRage.Game;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public class CommandInterpreter : ICommandInterpreter
     {
@@ -46,6 +47,9 @@ namespace ClientPlugin
                 },
                 {
                     "load", _ => stateSystem.Load()
+                },
+                {
+                    "reset", _ => stateSystem.Reset()
                 }
             };
         }

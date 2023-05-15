@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using ClientPlugin.App.Models;
 using VRageMath;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public interface IPaintJobStateSystem
     {
@@ -13,5 +14,6 @@ namespace ClientPlugin
         Style GetCurrentStyle();
         void Load();
         void Save();
+        void Reset();
     }
 }

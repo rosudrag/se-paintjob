@@ -1,7 +1,7 @@
-using ClientPlugin.PaintFactors;
+using ClientPlugin.App.PaintFactors;
 using Sandbox.Game.Entities;
 
-namespace ClientPlugin.PaintAlgorithms
+namespace ClientPlugin.App.PaintAlgorithms
 {
     public abstract class PaintAlgorithm : ICleanable
     {

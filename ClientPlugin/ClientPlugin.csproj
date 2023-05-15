@@ -521,35 +521,34 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="ColorExtensions.cs" />
-        <Compile Include="CommandInterpreter.cs" />
+        <Compile Include="App\Extensions\ColorExtensions.cs" />
+        <Compile Include="App\Extensions\GridUtilities.cs" />
+        <Compile Include="App\IPaintApp.cs" />
+        <Compile Include="App\IPaintJob.cs" />
+        <Compile Include="App\Models\Style.cs" />
+        <Compile Include="App\PaintAlgorithms\RudimentaryPaintJob.cs" />
+        <Compile Include="App\PaintAlgorithms\PaintAlgorithm.cs" />
+        <Compile Include="App\PaintApp.cs" />
+        <Compile Include="App\PaintFactors\BaseBlockColorFactor.cs" />
+        <Compile Include="App\PaintFactors\BlockExposureColorFactor.cs" />
+        <Compile Include="App\PaintFactors\EdgeBlockColorFactor.cs" />
+        <Compile Include="App\PaintFactors\IColorFactor.cs" />
+        <Compile Include="App\PaintFactors\LightBlockColorFactor.cs" />
+        <Compile Include="App\PaintJob.cs" />
+        <Compile Include="App\Systems\CommandInterpreter.cs" />
+        <Compile Include="App\Systems\ICommandInterpreter.cs" />
+        <Compile Include="App\Systems\IPaintJobHelpSystem.cs" />
+        <Compile Include="App\Systems\IPaintJobStateSystem.cs" />
+        <Compile Include="App\Systems\PaintJobHelpSystem.cs" />
+        <Compile Include="App\Systems\PaintJobStateSystem.cs" />
         <Compile Include="DryIoc\Container.cs" />
         <Compile Include="DryIoc\Expression.cs" />
         <Compile Include="DryIoc\FastExpressionCompiler.cs" />
         <Compile Include="DryIoc\ImTools.cs" />
-        <Compile Include="GridUtilities.cs" />
         <Compile Include="GUI\MyPluginConfigDialog.cs" />
-        <Compile Include="ICommandInterpreter.cs" />
         <Compile Include="IoC.cs" />
-        <Compile Include="IPaintApp.cs" />
-        <Compile Include="IPaintJob.cs" />
-        <Compile Include="IPaintJobHelpSystem.cs" />
-        <Compile Include="IPaintJobStateSystem.cs" />
-        <Compile Include="PaintAlgorithms\FadedPaint.cs" />
-        <Compile Include="PaintAlgorithms\PaintAlgorithm.cs" />
-        <Compile Include="PaintAlgorithms\RudimentaryPaint.cs" />
-        <Compile Include="PaintApp.cs" />
-        <Compile Include="PaintFactors\BaseBlockColorFactor.cs" />
-        <Compile Include="PaintFactors\BlockExposureColorFactor.cs" />
-        <Compile Include="PaintFactors\EdgeBlockColorFactor.cs" />
-        <Compile Include="PaintFactors\LightBlockColorFactor.cs" />
-        <Compile Include="PaintFactors\IColorFactor.cs" />
-        <Compile Include="PaintJob.cs" />
-        <Compile Include="PaintJobHelpSystem.cs" />
-        <Compile Include="PaintJobStateSystem.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Style.cs" />
     </ItemGroup>
     <ItemGroup>
         <Content Include="deploy.bat" />

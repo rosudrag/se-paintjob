@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using ClientPlugin.PaintAlgorithms;
+using ClientPlugin.App.Models;
+using ClientPlugin.App.PaintAlgorithms;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game;
 
-namespace ClientPlugin
+namespace ClientPlugin.App
 {
     public class PaintJob : IPaintJob
     {
@@ -18,10 +19,7 @@ namespace ClientPlugin
             _algorithms = new Dictionary<Style, PaintAlgorithm>
             {
                 {
-                    Style.Rudimentary, new RudimentaryPaint(stateSystem)
-                },
-                {
-                    Style.Test, new FadedPaint(stateSystem)
+                    Style.Rudimentary, new RudimentaryPaintJob(stateSystem)
                 }
             };
         }

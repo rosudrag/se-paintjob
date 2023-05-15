@@ -3,7 +3,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using VRageMath;
 
-namespace ClientPlugin.PaintFactors
+namespace ClientPlugin.App.PaintFactors
 {
     public class BlockExposureColorFactor : IColorFactor
     {

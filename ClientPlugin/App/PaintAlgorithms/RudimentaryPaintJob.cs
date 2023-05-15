@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ClientPlugin.PaintFactors;
+using ClientPlugin.App.PaintFactors;
 using Sandbox.Game.Entities;
 using VRageMath;
 
-namespace ClientPlugin.PaintAlgorithms
+namespace ClientPlugin.App.PaintAlgorithms
 {
-    public class FadedPaint : PaintAlgorithm
+    public class RudimentaryPaintJob : PaintAlgorithm
     {
         private readonly Dictionary<Vector3I, Color> _colorCache;
         private readonly List<IColorFactor> _colorFactors;
 
-        public FadedPaint(IPaintJobStateSystem stateSystem) : base(stateSystem)
+        public RudimentaryPaintJob(IPaintJobStateSystem stateSystem) : base(stateSystem)
         {
             _colorFactors = new List<IColorFactor>
             {
@@ -57,7 +57,7 @@ namespace ClientPlugin.PaintAlgorithms
                 var original = block.ColorMaskHSV;
                 if (original != color)
                 {
-                    grid.ChangeColorAndSkin(block, color);
+                    grid.SkinBlocks(block.Position, block.Position, color, null, false);
                 }
             }
         }
