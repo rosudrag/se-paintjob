@@ -1,33 +1,31 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using ClientPlugin.GUI;
-using ClientPlugin.Shared.Config;
-using ClientPlugin.Shared.Logging;
-using ClientPlugin.Shared.Patches;
-using ClientPlugin.Shared.Plugin;
-using DryIoc;
 using HarmonyLib;
 using PaintJob.App;
+using PaintJob.GUI;
+using PaintJob.Shared.Config;
+using PaintJob.Shared.Logging;
+using PaintJob.Shared.Patches;
+using PaintJob.Shared.Plugin;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using VRage.FileSystem;
 using VRage.Plugins;
 
-namespace ClientPlugin
+namespace PaintJob
 {
     // ReSharper disable once UnusedType.Global
     public class Plugin : IPlugin, ICommonPlugin
     {
-        public const string Name = "PicassoGrids";
+        public const string Name = "PaintJob";
         private static readonly IPluginLogger Logger = new PluginLogger(Name);
         private static readonly string ConfigFileName = $"{Name}.cfg";
 
         private static bool initialized;
         private static bool failed;
-        private Container _container;
         private PersistentConfig<PluginConfig> config;
-        private IPaintApp _app => _container.Resolve<IPaintApp>();
+        private static IPaintApp _app => SimpleIoC.Resolve<IPaintApp>();
         public static Plugin Instance { get; private set; }
 
         public long Tick { get; private set; }
@@ -115,9 +113,9 @@ namespace ClientPlugin
             initialized = true;
         }
 
-        private void Initialize()
+        private static void Initialize()
         {
-            _container = IoC.Init(Logger);
+            IoC.Init(Logger);
             _app.Initialize();
         }
 

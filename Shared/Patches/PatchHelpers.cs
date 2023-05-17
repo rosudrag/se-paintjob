@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using ClientPlugin.Shared.Logging;
 using HarmonyLib;
+using PaintJob.Shared.Logging;
 
-namespace ClientPlugin.Shared.Patches
+namespace PaintJob.Shared.Patches
 {
     // ReSharper disable once UnusedType.Global
     public static class PatchHelpers

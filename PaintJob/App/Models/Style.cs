@@ -2,6 +2,6 @@
 {
     public enum Style
     {
-        Rudimentary, Test
+        Rudimentary
     }
 }

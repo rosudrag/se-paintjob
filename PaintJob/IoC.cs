@@ -1,32 +1,35 @@
-﻿using ClientPlugin.Shared.Logging;
-using DryIoc;
-using PaintJob.App;
+﻿using PaintJob.App;
 using PaintJob.App.Systems;
+using PaintJob.Shared.Logging;
 
-namespace ClientPlugin
+namespace PaintJob
 {
     public class IoC
     {
-        private static Container _container;
+        public static void Init(IPluginLogger pluginLogger)
+        {
+            SimpleIoC.Register(pluginLogger);
+            
+            var helpSystem = new PaintJobHelpSystem();
+            SimpleIoC.Register<IPaintJobHelpSystem, PaintJobHelpSystem>(helpSystem);
+            
+            var stateSystem = new PaintJobStateSystem(helpSystem);
+            SimpleIoC.Register<IPaintJobStateSystem, PaintJobStateSystem>(stateSystem);
+            
+            var paintJob = new PaintJob.App.PaintJob(stateSystem);
+            SimpleIoC.Register<IPaintJob, PaintJob.App.PaintJob>(paintJob);
+            
+            var commandInterpreter = new CommandInterpreter(helpSystem, stateSystem, paintJob);
+            SimpleIoC.Register<ICommandInterpreter, CommandInterpreter>(commandInterpreter);
+            
+            
+            var paintApp = new PaintApp(commandInterpreter, stateSystem);
+            SimpleIoC.Register<IPaintApp, PaintApp>(paintApp);
 
-        public static Container Init(IPluginLogger pluginLogger)
-        {
-            _container = new Container();
-            Register(_container, pluginLogger);
-            return _container;
         }
-        private static void Register(IRegistrator r, IPluginLogger pluginLogger)
+        public static T Resolve<T>() where T : class
         {
-            r.RegisterDelegate(typeof(IPluginLogger), _ => pluginLogger);
-            r.Register<IPaintApp, PaintApp>(Reuse.Singleton);
-            r.Register<ICommandInterpreter, CommandInterpreter>(Reuse.Singleton);
-            r.Register<IPaintJobHelpSystem, PaintJobHelpSystem>(Reuse.Singleton);
-            r.Register<IPaintJobStateSystem, PaintJobStateSystem>(Reuse.Singleton);
-            r.Register<IPaintJob, PaintJob.App.PaintJob>(Reuse.Singleton);
-        }
-        public static T Resolve<T>()
-        {
-            return _container.Resolve<T>();
+            return SimpleIoC.Resolve<T>();
         }
     }
 }

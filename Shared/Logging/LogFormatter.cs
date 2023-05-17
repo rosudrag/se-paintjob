@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
-namespace ClientPlugin.Shared.Logging
+namespace PaintJob.Shared.Logging
 {
     public class LogFormatter
     {

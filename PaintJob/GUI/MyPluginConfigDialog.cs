@@ -1,18 +1,18 @@
 using System;
 using System.Text;
-using ClientPlugin.Shared.Plugin;
+using PaintJob.Shared.Plugin;
 using Sandbox;
 using Sandbox.Graphics.GUI;
 using VRage;
 using VRage.Utils;
 using VRageMath;
 
-namespace ClientPlugin.GUI
+namespace PaintJob.GUI
 {
 
     public class MyPluginConfigDialog : MyGuiScreenBase
     {
-        private const string Caption = "PicassoGrids Configuration";
+        private const string Caption = "PaintJob Configuration";
         private MyGuiControlButton closeButton;
         private MyGuiControlCheckbox enabledCheckbox;
 

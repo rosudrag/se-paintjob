@@ -1,6 +1,6 @@
 using System;
 
-namespace ClientPlugin.Shared.Logging
+namespace PaintJob.Shared.Logging
 {
     public interface IPluginLogger
     {

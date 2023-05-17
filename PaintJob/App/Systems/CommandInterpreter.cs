@@ -73,10 +73,5 @@ namespace PaintJob.App.Systems
                 MyAPIGateway.Utilities.ShowNotification("Invalid command. Type '/paint help' for a list of commands.", 5000, MyFontEnum.Red);
             }
         }
-
-        public string[] GetCommands()
-        {
-            return _commands.Select(x => x.Key).ToArray();
-        }
     }
 }

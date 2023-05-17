@@ -14,12 +14,7 @@ namespace PaintJob.App
             _stateSystem = stateSystem;
         }
 
-        public void Initialize()
-        {
-            MyAPIGateway.Utilities.MessageEntered += PaintCommand;
-            MyAPIGateway.Utilities.ShowMessage("Logger", "Paint plugin initialized");
-            _stateSystem.Load();
-        }
+
         public void CustomUpdate()
         {
             // Update code here. It is called on every simulation frame!
@@ -28,8 +23,14 @@ namespace PaintJob.App
         {
             _stateSystem.Save();
         }
-
-        private void PaintCommand(string messageText, ref bool sendToOthers)
+        
+        public void Initialize()
+        {
+            MyAPIGateway.Utilities.MessageEnteredSender += PaintCommand;
+            MyAPIGateway.Utilities.ShowMessage("Logger", "Paint plugin initialized");
+            _stateSystem.Load();
+        }
+        private void PaintCommand(ulong sender, string messageText, ref bool sendToOthers)
         {
             if (messageText.StartsWith("/paint"))
             {

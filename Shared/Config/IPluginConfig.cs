@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace ClientPlugin.Shared.Config
+namespace PaintJob.Shared.Config
 {
     public interface IPluginConfig : INotifyPropertyChanged
     {

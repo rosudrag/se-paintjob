@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ClientPlugin;
 using PaintJob.App.Systems;
 using Sandbox.Game.Entities;
 using VRageMath;

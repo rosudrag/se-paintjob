@@ -1,7 +1,7 @@
-using ClientPlugin.Shared.Config;
-using ClientPlugin.Shared.Logging;
+using PaintJob.Shared.Config;
+using PaintJob.Shared.Logging;
 
-namespace ClientPlugin.Shared.Plugin
+namespace PaintJob.Shared.Plugin
 {
     public static class Common
     {

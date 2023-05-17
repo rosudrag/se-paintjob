@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
-using ClientPlugin.Shared.Logging;
+using PaintJob.Shared.Logging;
 
-namespace ClientPlugin.Shared.Config
+namespace PaintJob.Shared.Config
 {
     // Ported from Torch's Persistent<T> class for compatibility of configuration files between targets and to work with IPluginLogger.
     // Simple class that manages saving <see cref="P:Torch.Persistent`1.Data" /> to disk using XML serialization.

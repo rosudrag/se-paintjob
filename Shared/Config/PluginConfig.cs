@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 #if !TORCH
 
-namespace ClientPlugin.Shared.Config
+namespace PaintJob.Shared.Config
 {
     public class PluginConfig : IPluginConfig
     {

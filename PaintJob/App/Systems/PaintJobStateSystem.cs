@@ -21,7 +21,7 @@ namespace PaintJob.App.Systems
 
         private readonly IPaintJobHelpSystem _helpSystem;
         private readonly string _stateFilePath = "PaintJobState.xml";
-        private Style _currentStyle = Style.Test;
+        private Style _currentStyle = Style.Rudimentary;
 
         public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
         {
@@ -142,7 +142,7 @@ namespace PaintJob.App.Systems
         public void Reset()
         {
             _colors.Clear();
-            _currentStyle = Style.Test;
+            _currentStyle = Style.Rudimentary;
             
             Save();
         }
