@@ -16,7 +16,7 @@ namespace PaintJob.App.Systems
         private List<Color> _colors = new List<Color>();
 
         private readonly string _stateFilePath = "PaintJobState.xml";
-        private Style _currentStyle = Style.RandomSteal;
+        private Style _currentStyle = Style.Rudimentary;
 
         public void ShowState()
         {
