@@ -3,10 +3,8 @@
 SE PluginLoader plugin
 
 Currently has a rather simple algorithm for a paint job:
-Rudimentary paint job:
-- base block color factor: first color in the palette is the main color for non functional blocks and the others are round robin.
-- exterior blocks get a darker shade of their base color
-- edge blocks get a lighter shade of their base color
+- uses the top line from the color palette for non functional blocks
+- uses teh bottom line from the color palette for functional blocks
 - exterior lights are assigned starboard and port colors (green and red)
 
 Working with plugin:
@@ -15,3 +13,6 @@ Working with plugin:
 
 Run command in chat:
 ```/paint run```
+
+Known issue:
+- some colors dont apply very well to functional or modded blocks.
