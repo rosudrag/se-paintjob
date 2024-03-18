@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
 using PaintJob.App.Models;
 using Sandbox.ModAPI;
-using VRageMath;
 
 namespace PaintJob.App.Systems
 {
 
     public class PaintJobStateSystem : IPaintJobStateSystem
     {
-        private List<Color> _colors = new List<Color>();
-
-        private readonly string _stateFilePath = "PaintJobState.xml";
+        private const string _stateFilePath = "PaintJobState.xml";
         private Style _currentStyle = Style.Rudimentary;
 
         public void ShowState()
@@ -23,8 +19,11 @@ namespace PaintJob.App.Systems
             var sb = new StringBuilder("Paint plugin state");
             sb.AppendLine("--- --- --- --- --- ---");
             sb.AppendLine();
-            sb.AppendLine($"Colors selected: first {_colors.Count} from palette");
+            sb.AppendLine("This plugin uses all the colors from your color palette and applies them to the grid you are looking at.");
+            sb.AppendLine("Simply run the following command:");
+            sb.AppendLine("/paint run");
             sb.AppendLine();
+            sb.AppendLine("PRO tip: use the Build Color plugin to generate color palettes for your builds!");
             sb.AppendLine("--- --- --- --- --- ---");
             sb.AppendLine($"Style: {_currentStyle.ToString()}");
 
@@ -45,7 +44,6 @@ namespace PaintJob.App.Systems
         {
             var state = new SerializableState
             {
-                Colors = _colors,
                 CurrentStyle = _currentStyle
             };
 
@@ -62,7 +60,6 @@ namespace PaintJob.App.Systems
         
         public void Reset()
         {
-            _colors.Clear();
             _currentStyle = Style.Rudimentary;
             
             Save();
@@ -79,9 +76,6 @@ namespace PaintJob.App.Systems
                 using (var stringReader = new StringReader(serializedXml))
                 {
                     var state = (SerializableState)serializer.Deserialize(stringReader);
-
-                    _colors.Clear();
-                    _colors.AddRange(state.Colors);
 
                     _currentStyle = state.CurrentStyle;
                 }
@@ -101,7 +95,6 @@ namespace PaintJob.App.Systems
         [Serializable]
         public class SerializableState
         {
-            public List<Color> Colors { get; set; }
             public Style CurrentStyle { get; set; }
         }
     }
