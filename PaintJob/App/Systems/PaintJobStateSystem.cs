@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
 using PaintJob.App.Models;
 using Sandbox.ModAPI;
-using VRage.Game;
 using VRageMath;
 
 namespace PaintJob.App.Systems
@@ -16,101 +13,24 @@ namespace PaintJob.App.Systems
 
     public class PaintJobStateSystem : IPaintJobStateSystem
     {
-        private readonly Dictionary<string, Color> _colorDictionary = new Dictionary<string, Color>();
-        private readonly List<Color> _colors = new List<Color>();
+        private List<Color> _colors = new List<Color>();
 
-        private readonly IPaintJobHelpSystem _helpSystem;
         private readonly string _stateFilePath = "PaintJobState.xml";
-        private Style _currentStyle = Style.Rudimentary;
-
-        public PaintJobStateSystem(IPaintJobHelpSystem helpSystem)
-        {
-            _helpSystem = helpSystem;
-            InitializeColorDictionary();
-        }
+        private Style _currentStyle = Style.RandomSteal;
 
         public void ShowState()
         {
             var sb = new StringBuilder("Paint plugin state");
             sb.AppendLine("--- --- --- --- --- ---");
             sb.AppendLine();
+            sb.AppendLine($"Colors selected: first {_colors.Count} from palette");
             sb.AppendLine();
-            sb.AppendLine("Colors selected:");
-            sb.AppendLine();
-            for (var i = 0; i < _colors.Count; i++)
-            {
-                var color = _colors[i];
-                var colorName = _colorDictionary.FirstOrDefault(x => x.Value == color).Key;
-                sb.AppendLine($"{i}.{colorName}");
-            }
             sb.AppendLine("--- --- --- --- --- ---");
             sb.AppendLine($"Style: {_currentStyle.ToString()}");
 
             MyAPIGateway.Utilities.ShowMissionScreen("Paint state", "", "", sb.ToString(), null, "Close");
         }
-
-        public void AddColor(string[] args)
-        {
-            if (args.Length == 0)
-            {
-                MyAPIGateway.Utilities.ShowNotification("Usage: /paint add [colorName|hexValue]", 5000, MyFontEnum.Red);
-                return;
-            }
-
-            var colorInput = args[0];
-
-            // Check if the input is a named color
-            if (_colorDictionary.TryGetValue(colorInput, out var color))
-            {
-                _colors.Add(color);
-                MyAPIGateway.Utilities.ShowNotification($"Color '{colorInput}' added.", 5000, MyFontEnum.Green);
-            }
-            else
-            {
-                // Check if the input is a hex color value
-                var hexToColor = VRageMath.ColorExtensions.HexToColor(colorInput);
-                _colors.Add(color);
-                MyAPIGateway.Utilities.ShowNotification($"Color {hexToColor.ToString()} added.", 5000, MyFontEnum.Green);
-            }
-    
-            Save();
-        }
-
-        public void RemoveColor(string[] args)
-        {
-            if (args.Length == 0)
-            {
-                MyAPIGateway.Utilities.ShowNotification("Usage: /paint remove [index]", 5000, MyFontEnum.Red);
-                return;
-            }
-
-            if (int.TryParse(args[0], out var index))
-            {
-                if (index >= 0 && index < _colors.Count)
-                {
-                    var color = _colors[index];
-                    var colorName = _colorDictionary.FirstOrDefault(x => x.Value == color).Key;
-                    _colors.RemoveAt(index);
-                    MyAPIGateway.Utilities.ShowNotification($"Color '{colorName} ({color})' removed.", 5000, MyFontEnum.Green);
-                }
-                else
-                {
-                    MyAPIGateway.Utilities.ShowNotification("Invalid index. Please enter a valid integer.", 5000, MyFontEnum.Red);
-                }
-            }
-            else
-            {
-                MyAPIGateway.Utilities.ShowNotification($"Invalid input '{args[0]}'. Please enter a valid integer.", 5000, MyFontEnum.Red);
-            }
-            
-            Save();
-        }
-        public Color[] GetColors()
-        {
-            return _colors.ToArray();
-        }
-
-
+        
         public void SetStyle(Style style)
         {
             _currentStyle = style;
@@ -139,6 +59,7 @@ namespace PaintJob.App.Systems
                 File.WriteAllText(_stateFilePath, encodedXml);
             }
         }
+        
         public void Reset()
         {
             _colors.Clear();
@@ -176,23 +97,7 @@ namespace PaintJob.App.Systems
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
             }
         }
-
-        private void InitializeColorDictionary()
-        {
-            var colorType = typeof(Color);
-            var colorProperties = colorType.GetProperties(BindingFlags.Public | BindingFlags.Static)
-                .Where(p => p.PropertyType == colorType);
-
-            foreach (var colorProperty in colorProperties)
-            {
-                var colorName = colorProperty.Name;
-                var colorValue = (Color)colorProperty.GetValue(null);
-                _colorDictionary[colorName] = colorValue;
-            }
-
-            _helpSystem.WithColors(_colorDictionary.Select(x => x.Key));
-        }
-
+        
         [Serializable]
         public class SerializableState
         {

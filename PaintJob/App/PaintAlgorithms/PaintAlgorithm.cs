@@ -1,5 +1,4 @@
 using PaintJob.App.PaintFactors;
-using PaintJob.App.Systems;
 using Sandbox.Game.Entities;
 
 namespace PaintJob.App.PaintAlgorithms
@@ -8,6 +7,13 @@ namespace PaintJob.App.PaintAlgorithms
     {
         public abstract void Clean();
 
-        public abstract void Apply(MyCubeGrid grid);
+        protected abstract void Apply(MyCubeGrid grid);
+        protected abstract void GeneratePalette(MyCubeGrid grid);
+
+        public void Run(MyCubeGrid grid)
+        {
+            GeneratePalette(grid);
+            Apply(grid);
+        }
     }
 }

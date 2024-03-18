@@ -13,7 +13,7 @@ namespace PaintJob
             var helpSystem = new PaintJobHelpSystem();
             SimpleIoC.Register<IPaintJobHelpSystem, PaintJobHelpSystem>(helpSystem);
             
-            var stateSystem = new PaintJobStateSystem(helpSystem);
+            var stateSystem = new PaintJobStateSystem();
             SimpleIoC.Register<IPaintJobStateSystem, PaintJobStateSystem>(stateSystem);
             
             var paintJob = new PaintJob.App.PaintJob(stateSystem);
@@ -27,6 +27,7 @@ namespace PaintJob
             SimpleIoC.Register<IPaintApp, PaintApp>(paintApp);
 
         }
+        
         public static T Resolve<T>() where T : class
         {
             return SimpleIoC.Resolve<T>();

@@ -36,7 +36,6 @@ namespace PaintJob.App.Extensions
             foreach (var direction in directions)
             {
                 var endPoint = blockWorldPosition + direction * grid.GridSize * grid.Max;
-                var ray = new Ray(blockWorldPosition, direction);
 
                 var raycastHit = MyAPIGateway.Physics.CastRay(blockWorldPosition, endPoint, out var hitInfo);
 

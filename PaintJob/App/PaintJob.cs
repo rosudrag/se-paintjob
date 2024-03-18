@@ -42,7 +42,7 @@ namespace PaintJob.App
 
                 if (targetGrid != null)
                 {
-                    paintAlgorithm.Apply(targetGrid as MyCubeGrid);
+                    paintAlgorithm.Run(targetGrid as MyCubeGrid);
 
                     MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
                 }

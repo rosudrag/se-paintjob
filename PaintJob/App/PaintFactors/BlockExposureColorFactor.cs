@@ -1,28 +1,42 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MonoMod.Utils;
 using PaintJob.App.Extensions;
 using Sandbox.Game.Entities;
+using Sandbox.ModAPI;
 using VRageMath;
 
 namespace PaintJob.App.PaintFactors
 {
     public class BlockExposureColorFactor : BaseFactor
     {
-        private const float ExposureDarkenPercentage = 0.3f;
-        private const float InteriorLightenPercentage = 0.4f;
-
-        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
+        public override Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette)
         {
-            var result = new Dictionary<Vector3I, Color>();
+            var nonFuncBlockColors = palette.Take(3).ToArray();
+            var funcBlockColors = palette.Skip(7).Take(3).ToArray();
+
+            var result = new Dictionary<Vector3I, Vector3>();
             result.AddRange(currentColors);
             var blocks = grid.GetBlocks();
 
+            var random = new Random();
+
             foreach (var block in blocks)
             {
-                if (GridUtilities.IsExteriorBlock(block, grid))
+                if (!GridUtilities.IsExteriorBlock(block, grid))
+                    continue;
+                if (block.FatBlock is IMyFunctionalBlock)
                 {
-                    var current = currentColors[block.Position];
-                    result[block.Position] = current.Darken(ExposureDarkenPercentage);
+                    var secondaryColorRandom = random.Next(funcBlockColors.Length);
+                    var secondaryColor = funcBlockColors[secondaryColorRandom];
+                    result[block.Position] = secondaryColor;
+                }
+                else
+                {
+                    var secondaryColorRandom = random.Next(nonFuncBlockColors.Length);
+                    var secondaryColor = nonFuncBlockColors[secondaryColorRandom];
+                    result[block.Position] = secondaryColor;
                 }
             }
 

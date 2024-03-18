@@ -24,13 +24,12 @@ namespace PaintJob.App.PaintFactors
         private static Color GetColor(MySlimBlock block)
         {
             // Assuming the light block is an instance of IMyLightingBlock
-            var lightBlock = block.FatBlock as IMyLightingBlock;
-            if (lightBlock == null)
-                return Color.Black;
+            if (!(block.FatBlock is IMyLightingBlock lightBlock))
+                return block.ColorMaskHSV;
 
             var playerEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
             if (playerEntity == null)
-                return Color.Black;
+                return block.ColorMaskHSV;
 
             var playerRight = playerEntity.WorldMatrix.Right;
             var blockToPlayer = playerEntity.WorldMatrix.Translation - block.WorldPosition;
@@ -47,7 +46,7 @@ namespace PaintJob.App.PaintFactors
                 lightBlock.Intensity = 2;
                 lightBlock.Radius = 20;
                 lightBlock.Falloff = 1;
-                return Color.Red;
+                return block.ColorMaskHSV;
 
             }
             // Starboard side - green light
@@ -58,12 +57,12 @@ namespace PaintJob.App.PaintFactors
             lightBlock.Intensity = 2;
             lightBlock.Radius = 20;
             lightBlock.Falloff = 1;
-            return Color.Green;
+            return block.ColorMaskHSV;
         }
 
-        public override Dictionary<Vector3I, Color> Apply(MyCubeGrid grid, Dictionary<Vector3I, Color> currentColors)
+        public override Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette)
         {
-            var result = new Dictionary<Vector3I, Color>();
+            var result = new Dictionary<Vector3I, Vector3>();
             result.AddRange(currentColors);
             var blocks = grid.GetBlocks();
 

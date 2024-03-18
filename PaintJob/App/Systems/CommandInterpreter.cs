@@ -22,19 +22,7 @@ namespace PaintJob.App.Systems
                     "?", args => helpSystem.DisplayHelp()
                 },
                 {
-                    "add", stateSystem.AddColor
-                },
-                {
                     "state", args => stateSystem.ShowState()
-                },
-                {
-                    "remove", stateSystem.RemoveColor
-                },
-                {
-                    "execute", args => paintJob.Run()
-                },
-                {
-                    "exec", args => paintJob.Run()
                 },
                 {
                     "run", args => paintJob.Run()
