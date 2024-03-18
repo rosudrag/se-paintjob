@@ -4,7 +4,7 @@ SE PluginLoader plugin
 
 Currently has a rather simple algorithm for a paint job:
 - uses the top line from the color palette for non functional blocks
-- uses teh bottom line from the color palette for functional blocks
+- uses the bottom line from the color palette for functional blocks
 - exterior lights are assigned starboard and port colors (green and red)
 
 Working with plugin:
