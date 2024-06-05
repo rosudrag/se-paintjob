@@ -11,6 +11,6 @@ namespace PaintJob.App.PaintFactors
         {
             
         }
-        public abstract Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette);
+        public abstract Dictionary<Vector3I, int> Apply(MyCubeGrid grid, Dictionary<Vector3I, int> currentColors);
     }
 }

@@ -28,6 +28,9 @@ namespace PaintJob.App.Systems
                     "run", args => paintJob.Run()
                 },
                 {
+                  "test", paintJob.RunTest  
+                },
+                {
                     "style", args => stateSystem.SetStyle(Enum.TryParse<Style>(args[0], out var style) ? style : Style.Rudimentary)
                 },
                 {

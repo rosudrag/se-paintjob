@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PaintJob.App.PaintFactors;
 using Sandbox.Game.Entities;
@@ -9,13 +10,13 @@ namespace PaintJob.App.PaintAlgorithms
 {
     public class RudimentaryPaintJob : PaintAlgorithm
     {
-        private Dictionary<Vector3I, Vector3> _colorCache = new Dictionary<Vector3I, Vector3>();
+        private Dictionary<Vector3I, int> _colorResult = new Dictionary<Vector3I, int>(); //position to index in palette
         private readonly List<IColorFactor> _colorFactors = new List<IColorFactor>
         {
             new BaseBlockColorFactor(),
             new BlockExposureColorFactor(),
             new EdgeBlockColorFactor(),
-            new LightBlockColorFactor()
+            // new LightBlockColorFactor()
         };
 
         private Vector3[] _colors;
@@ -26,7 +27,7 @@ namespace PaintJob.App.PaintAlgorithms
             {
                 colorFactor.Clean();
             }
-            _colorCache.Clear();
+            _colorResult.Clear();
         }
 
         protected override void Apply(MyCubeGrid grid)
@@ -34,21 +35,38 @@ namespace PaintJob.App.PaintAlgorithms
             // Compute the color changes and store them in the cache
             foreach (var factor in _colorFactors)
             {
-                _colorCache = factor.Apply(grid, _colorCache, _colors);
+                _colorResult = factor.Apply(grid, _colorResult);
             }
 
             var blocks = grid.GetBlocks();
+
             foreach (var block in blocks)
             {
-                if (!_colorCache.TryGetValue(block.Position, out var value))
+                if (!_colorResult.TryGetValue(block.Position, out var colorIndex))
                     continue;
-                grid.ColorBlocks(block.Position, block.Position, value, false);
+                
+                grid.ColorBlocks(block.Position, block.Position, _colors[colorIndex], false);
+                
             }
         }
 
         protected override void GeneratePalette(MyCubeGrid grid)
         {
             _colors = MyPlayer.ColorSlots.ToArray();
+        }
+        
+        public override void RunTest(MyCubeGrid grid, string[] args)
+        {
+            GeneratePalette(grid);
+            
+            var colorNumber = int.Parse(args[0]);
+            var color = _colors[colorNumber];
+            
+            var blocks = grid.GetBlocks();
+            foreach (var block in blocks)
+            {
+                grid.ColorBlocks(block.Position, block.Position, color, false);
+            }
         }
     }
 }

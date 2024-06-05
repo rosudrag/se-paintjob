@@ -8,28 +8,19 @@ namespace PaintJob.App.PaintFactors
 {
     public class BaseBlockColorFactor : BaseFactor
     {
-        private readonly Dictionary<string, Color> _blockTypeToColor = new Dictionary<string, Color>();
+        private readonly Dictionary<string, int> _blockTypeToColorIndex = new Dictionary<string, int>();
 
-        public override Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette)
+        public override Dictionary<Vector3I, int> Apply(MyCubeGrid grid, Dictionary<Vector3I, int> currentColors)
         {
-            Initialize(grid, palette);
-            var result = new Dictionary<Vector3I, Vector3>();
+            Initialize(grid);
+            var result = new Dictionary<Vector3I, int>();
             var blocks = grid.GetBlocks();
 
             foreach (var block in blocks)
             {
-                var color = palette[0];
-
-                try
-                {
-                    var blockType = block.BlockDefinition.Id.TypeId.ToString();
-                    result[block.Position] = _blockTypeToColor[blockType];
-                }
-                catch
-                {
-                    result[block.Position] = color;
-                }
-
+                var blockType = block.BlockDefinition.Id.TypeId.ToString();
+                if(_blockTypeToColorIndex.TryGetValue(blockType, out var colorIndex))
+                    result[block.Position] = colorIndex;
             }
 
             return result;
@@ -37,67 +28,44 @@ namespace PaintJob.App.PaintFactors
 
         public override void Clean()
         {
-            _blockTypeToColor.Clear();
+            _blockTypeToColorIndex.Clear();
         }
 
-        private void Initialize(MyCubeGrid grid, Vector3[] colors)
+        private void Initialize(MyCubeGrid grid)
         {
-            DoNonFunctionalBlocks(grid, colors);
-            DoFunctionalBlocks(grid, colors);
+            DoNonFunctionalBlocks(grid);
+            DoFunctionalBlocks(grid);
         }
 
-        private void DoFunctionalBlocks(MyCubeGrid grid, Vector3[] colors)
+        private void DoFunctionalBlocks(MyCubeGrid grid)
         {
-            var nonMainColors = colors.Skip(7).ToArray();
-            var nonMainColorsCount = nonMainColors.Length;
             var functionalBlockTypes = grid.GetBlocks()
                 .Where(block => block.FatBlock is IMyFunctionalBlock)
                 .Select(block => block.BlockDefinition.Id.TypeId.ToString())
                 .Distinct();
 
-            if (nonMainColors.Any())
+            var colorIndex = 7;
+            foreach (var blockType in functionalBlockTypes)
             {
-                var colorIndex = 0;
-                foreach (var blockType in functionalBlockTypes)
-                {
-                    _blockTypeToColor[blockType] = nonMainColors[colorIndex++];
-                    colorIndex %= nonMainColorsCount; // Cycle through colors
-                }
-            }
-            else
-            {
-                foreach (var blockType in functionalBlockTypes)
-                {
-                    _blockTypeToColor[blockType] = colors[0];
-                }
+                _blockTypeToColorIndex[blockType] = colorIndex++;
+                colorIndex %= 13; // cycle through colors (skip the first 7 colors) and wrap around at 13
+                if(colorIndex == 0) colorIndex = 7;
             }
         }
 
         // Assign the first color to all non-functional blocks
-        private void DoNonFunctionalBlocks(MyCubeGrid grid, Vector3[] colors)
+        private void DoNonFunctionalBlocks(MyCubeGrid grid)
         {
-            var nonMainColors = colors.Take(7).ToArray();
-            var nonMainColorsCount = nonMainColors.Length;
             var functionalBlockTypes = grid.GetBlocks()
                 .Where(block => !(block.FatBlock is IMyFunctionalBlock))
                 .Select(block => block.BlockDefinition.Id.TypeId.ToString())
                 .Distinct();
 
-            if (nonMainColors.Any())
+            var colorIndex = 0;
+            foreach (var blockType in functionalBlockTypes)
             {
-                var colorIndex = 0;
-                foreach (var blockType in functionalBlockTypes)
-                {
-                    _blockTypeToColor[blockType] = nonMainColors[colorIndex++];
-                    colorIndex %= nonMainColorsCount; // Cycle through colors
-                }
-            }
-            else
-            {
-                foreach (var blockType in functionalBlockTypes)
-                {
-                    _blockTypeToColor[blockType] = colors[0];
-                }
+                _blockTypeToColorIndex[blockType] = colorIndex++;
+                colorIndex %= 6; // Cycle through colors and wrap around at 6
             }
         }
     }

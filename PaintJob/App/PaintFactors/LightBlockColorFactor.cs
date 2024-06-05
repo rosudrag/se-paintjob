@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using PaintJob.App.Extensions;
 using PaintJob.Extensions;
 using Sandbox.Common.ObjectBuilders;
@@ -21,15 +22,15 @@ namespace PaintJob.App.PaintFactors
                     type == typeof(MyObjectBuilder_SignalLight));
         }
 
-        private static Color GetColor(MySlimBlock block)
+        private static void ChangeLightEffect(MySlimBlock block)
         {
             // Assuming the light block is an instance of IMyLightingBlock
             if (!(block.FatBlock is IMyLightingBlock lightBlock))
-                return block.ColorMaskHSV;
+                return;
 
             var playerEntity = MyAPIGateway.Session.Player.Controller.ControlledEntity.Entity;
             if (playerEntity == null)
-                return block.ColorMaskHSV;
+                return;
 
             var playerRight = playerEntity.WorldMatrix.Right;
             var blockToPlayer = playerEntity.WorldMatrix.Translation - block.WorldPosition;
@@ -46,7 +47,7 @@ namespace PaintJob.App.PaintFactors
                 lightBlock.Intensity = 2;
                 lightBlock.Radius = 20;
                 lightBlock.Falloff = 1;
-                return block.ColorMaskHSV;
+                return;
 
             }
             // Starboard side - green light
@@ -57,25 +58,18 @@ namespace PaintJob.App.PaintFactors
             lightBlock.Intensity = 2;
             lightBlock.Radius = 20;
             lightBlock.Falloff = 1;
-            return block.ColorMaskHSV;
         }
 
-        public override Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette)
+        public override Dictionary<Vector3I, int> Apply(MyCubeGrid grid, Dictionary<Vector3I, int> currentColors)
         {
-            var result = new Dictionary<Vector3I, Vector3>();
-            result.AddRange(currentColors);
             var blocks = grid.GetBlocks();
 
-            foreach (var block in blocks)
+            foreach (var block in blocks.Where(block => AppliesTo(block, grid)))
             {
-                if (AppliesTo(block, grid))
-                {
-                    var color = GetColor(block);
-                    result[block.Position] = color;
-                }
+                ChangeLightEffect(block);
             }
 
-            return result;
+            return currentColors;
         }
     }
 

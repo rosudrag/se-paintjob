@@ -11,12 +11,9 @@ namespace PaintJob.App.PaintFactors
 {
     public class EdgeBlockColorFactor : BaseFactor
     {
-        public override Dictionary<Vector3I, Vector3> Apply(MyCubeGrid grid, Dictionary<Vector3I, Vector3> currentColors, Vector3[] palette)
+        public override Dictionary<Vector3I, int> Apply(MyCubeGrid grid, Dictionary<Vector3I, int> currentColors)
         {
-            var nonFuncBlockColors = palette.Skip(3).Take(4).ToArray();
-            var funcBlockColors = palette.Skip(10).ToArray();
-
-            var result = new Dictionary<Vector3I, Vector3>();
+            var result = new Dictionary<Vector3I, int>();
             result.AddRange(currentColors);
             var blocks = grid.GetBlocks();
 
@@ -28,15 +25,13 @@ namespace PaintJob.App.PaintFactors
                     continue;
                 if (block.FatBlock is IMyFunctionalBlock)
                 {
-                    var secondaryColorRandom = random.Next(funcBlockColors.Length);
-                    var secondaryColor = funcBlockColors[secondaryColorRandom];
-                    result[block.Position] = secondaryColor;
+                    var secondaryColorRandom = random.Next(10, 14);
+                    result[block.Position] = secondaryColorRandom;
                 }
                 else
                 {
-                    var secondaryColorRandom = random.Next(nonFuncBlockColors.Length);
-                    var secondaryColor = nonFuncBlockColors[secondaryColorRandom];
-                    result[block.Position] = secondaryColor;
+                    var secondaryColorRandom = random.Next(3, 7);
+                    result[block.Position] = secondaryColorRandom;
                 }
 
             }
