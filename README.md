@@ -13,6 +13,3 @@ Working with plugin:
 
 Run command in chat:
 ```/paint run```
-
-Known issue:
-- some colors dont apply very well to functional or modded blocks.
