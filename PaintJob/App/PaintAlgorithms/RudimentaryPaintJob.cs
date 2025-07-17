@@ -46,7 +46,6 @@ namespace PaintJob.App.PaintAlgorithms
                     continue;
                 
                 grid.ColorBlocks(block.Position, block.Position, _colors[colorIndex], false);
-                
             }
         }
 
