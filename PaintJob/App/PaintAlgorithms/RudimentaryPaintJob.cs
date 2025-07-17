@@ -45,7 +45,8 @@ namespace PaintJob.App.PaintAlgorithms
                 if (!_colorResult.TryGetValue(block.Position, out var colorIndex))
                     continue;
                 
-                grid.ColorBlocks(block.Position, block.Position, _colors[colorIndex], false);
+                // Color all positions occupied by multi-block structures
+                grid.ColorBlocks(block.Min, block.Max, _colors[colorIndex], false);
             }
         }
 

@@ -520,6 +520,12 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="App\Analysis\BlockSpatialAnalyzer.cs" />
+        <Compile Include="App\Analysis\FunctionalClusterAnalyzer.cs" />
+        <Compile Include="App\Analysis\PatternGenerator.cs" />
+        <Compile Include="App\Analysis\SectionDetector.cs" />
+        <Compile Include="App\Analysis\ShipGeometryAnalyzer.cs" />
+        <Compile Include="App\Analysis\SurfaceAnalyzer.cs" />
         <Compile Include="App\Extensions\ColorExtensions.cs" />
         <Compile Include="App\Extensions\GridUtilities.cs" />
         <Compile Include="App\IPaintApp.cs" />
