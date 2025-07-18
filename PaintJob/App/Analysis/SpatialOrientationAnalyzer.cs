@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.World;
 using VRageMath;
 
 namespace PaintJob.App.Analysis

@@ -1,404 +1,197 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using PaintJob.App.Analysis;
-using PaintJob.App.Extensions;
+using PaintJob.App.PaintAlgorithms.Common;
+using PaintJob.App.PaintAlgorithms.Common.Painters;
+using PaintJob.App.PaintAlgorithms.Common.Patterns;
+using PaintJob.App.PaintAlgorithms.Military;
+using PaintJob.App.PaintAlgorithms.Military.Analyzers;
+using PaintJob.App.PaintAlgorithms.Military.Camouflage;
+using PaintJob.App.PaintAlgorithms.Military.Painters;
 using PaintJob.App.Utils;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using VRageMath;
 
 namespace PaintJob.App.PaintAlgorithms
 {
+    /// <summary>
+    /// Military-themed paint job with camouflage patterns and functional coloring.
+    /// </summary>
     public class MilitaryPaintJob : PaintAlgorithm
     {
-        private Dictionary<Vector3I, int> _colorResult = new Dictionary<Vector3I, int>();
-        private Vector3[] _colors;
+        private readonly IAnalyzerFactory _analyzerFactory;
+        private readonly CamouflageFactory _camouflageFactory;
+        private readonly List<IBlockPainter> _painters;
+        private readonly MilitaryColorScheme _colorScheme;
+        private readonly Dictionary<Vector3I, int> _colorResults;
         
-        // Military color palette indices
-        private const int DarkGreen = 0;      // Primary hull color
-        private const int OliveGreen = 1;     // Secondary hull color  
-        private const int DarkGrey = 2;       // Weapons and utility
-        private const int Black = 3;          // Joints and recesses
-        private const int DarkBrown = 4;      // Camouflage accent
-        private const int SandBrown = 5;      // Desert variant
-        private const int Warning = 6;        // Hazard stripes (yellow/orange)
-        private const int NavRed = 7;         // Port navigation
-        private const int NavGreen = 8;       // Starboard navigation
-        private const int InteriorGrey = 9;  // Interior spaces
-        private const int FunctionalDark = 10; // Dark functional blocks
-        private const int FunctionalLight = 11; // Light functional blocks
-        
-        // Analysis systems
-        private readonly ShipGeometryAnalyzer _geometryAnalyzer = new ShipGeometryAnalyzer();
-        private readonly BlockSpatialAnalyzer _spatialAnalyzer = new BlockSpatialAnalyzer();
-        private readonly SurfaceAnalyzer _surfaceAnalyzer = new SurfaceAnalyzer();
-        private readonly FunctionalClusterAnalyzer _functionalAnalyzer = new FunctionalClusterAnalyzer();
-        private readonly SpatialOrientationAnalyzer _orientationAnalyzer = new SpatialOrientationAnalyzer();
-        private readonly PatternGenerator _patternGenerator = new PatternGenerator();
+        private Vector3[] _colorPalette;
 
+        public MilitaryPaintJob()
+        {
+            _analyzerFactory = new MilitaryAnalyzerFactory();
+            _camouflageFactory = new CamouflageFactory();
+            _colorScheme = new MilitaryColorScheme();
+            _colorResults = new Dictionary<Vector3I, int>();
+            _painters = InitializeDefaultPainters();
+        }
+        
         public override void Clean()
         {
-            _colorResult.Clear();
+            _colorResults.Clear();
+            _colorPalette = null;
         }
 
         protected override void Apply(MyCubeGrid grid)
         {
-            // Analyze the ship
-            var geometry = _geometryAnalyzer.AnalyzeGrid(grid);
-            var spatial = _spatialAnalyzer.AnalyzeBlockSpatialData(grid);
-            var surfaces = _surfaceAnalyzer.AnalyzeGrid(grid);
-            var functional = _functionalAnalyzer.AnalyzeGrid(grid);
-            var orientation = _orientationAnalyzer.AnalyzeGrid(grid);
+            try
+            {
+                ValidateGrid(grid);
+                
+                // Perform analysis
+                var context = PerformAnalysis(grid);
+                
+                // Apply painters in priority order
+                ApplyPainters(grid, context);
+                
+                // Apply final colors to grid
+                ApplyColorsToGrid(grid);
+            }
+            catch (Exception ex)
+            {
+                LogError($"Failed to apply military paint job: {ex.Message}");
+                throw new InvalidOperationException("Military paint job application failed", ex);
+            }
+        }
+
+        private void ValidateGrid(MyCubeGrid grid)
+        {
+            if (grid == null)
+                throw new ArgumentNullException(nameof(grid));
+            
+            if (grid.Physics == null)
+            {
+                LogWarning("Grid has no physics, paint job may not apply correctly");
+            }
             
             var blocks = grid.GetBlocks();
+            if (!blocks.Any())
+            {
+                throw new InvalidOperationException("Grid has no blocks to paint");
+            }
+        }
+
+        private PaintContext PerformAnalysis(MyCubeGrid grid)
+        {
+            try
+            {
+                LogInfo("Performing grid analysis...");
+                
+                var geometryAnalyzer = _analyzerFactory.CreateGeometryAnalyzer();
+                var spatialAnalyzer = _analyzerFactory.CreateSpatialAnalyzer();
+                var surfaceAnalyzer = _analyzerFactory.CreateSurfaceAnalyzer();
+                var functionalAnalyzer = _analyzerFactory.CreateFunctionalAnalyzer();
+                var orientationAnalyzer = _analyzerFactory.CreateOrientationAnalyzer();
+
+                var context = new PaintContext
+                {
+                    ColorScheme = _colorScheme,
+                    Geometry = geometryAnalyzer.AnalyzeGrid(grid),
+                    SpatialData = spatialAnalyzer.AnalyzeBlockSpatialData(grid),
+                    Surfaces = surfaceAnalyzer.AnalyzeGrid(grid),
+                    Functional = functionalAnalyzer.AnalyzeGrid(grid),
+                    Orientation = orientationAnalyzer.AnalyzeGrid(grid),
+                    Blocks = grid.GetBlocks()
+                };
+
+                LogInfo($"Analysis complete. Found {context.Blocks.Count} blocks, {context.Functional.Clusters.Count} functional clusters");
+                return context;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Analysis failed: {ex.Message}");
+                throw new InvalidOperationException("Failed to analyze grid", ex);
+            }
+        }
+
+        private void ApplyPainters(MyCubeGrid grid, PaintContext context)
+        {
+            // Sort painters by priority
+            var sortedPainters = _painters.OrderBy(p => p.Priority).ToList();
             
-            // Phase 1: Base coloring by layer and function
-            ApplyBaseColors(grid, blocks, spatial, functional);
+            foreach (var painter in sortedPainters)
+            {
+                try
+                {
+                    LogInfo($"Applying {painter.Name} painter...");
+                    painter.ApplyColors(grid, _colorResults, context);
+                }
+                catch (Exception ex)
+                {
+                    LogError($"Painter {painter.Name} failed: {ex.Message}");
+                    // Continue with other painters
+                }
+            }
+        }
+
+        private void ApplyColorsToGrid(MyCubeGrid grid)
+        {
+            if (_colorPalette == null || _colorPalette.Length == 0)
+            {
+                throw new InvalidOperationException("Color palette not initialized");
+            }
+
+            var appliedCount = 0;
+            var blocks = grid.GetBlocks();
             
-            // Phase 2: Exterior camouflage pattern
-            ApplyCamouflagePattern(grid, spatial, surfaces, geometry);
-            
-            // Phase 3: Functional system coloring
-            ApplyFunctionalSystemColors(functional);
-            
-            // Phase 4: Navigation and warning markings
-            ApplyNavigationMarkings(grid, orientation, functional);
-            
-            // Phase 5: Apply the colors to the grid
             foreach (var block in blocks)
             {
-                if (_colorResult.TryGetValue(block.Position, out var colorIndex))
+                if (_colorResults.TryGetValue(block.Position, out var colorIndex))
                 {
-                    grid.ColorBlocks(block.Min, block.Max, _colors[colorIndex], false);
-                }
-            }
-        }
-
-        private void ApplyBaseColors(
-            MyCubeGrid grid, 
-            HashSet<MySlimBlock> blocks,
-            Dictionary<MySlimBlock, BlockSpatialAnalyzer.BlockSpatialInfo> spatial,
-            FunctionalClusterAnalyzer.ClusterAnalysis functional)
-        {
-            foreach (var block in blocks)
-            {
-                if (!spatial.TryGetValue(block, out var spatialInfo))
-                    continue;
-                
-                // Determine base color by layer
-                var baseColor = DarkGreen;
-                
-                if (spatialInfo.PrimaryLayer == BlockSpatialAnalyzer.LayerType.Interior)
-                {
-                    baseColor = InteriorGrey;
-                }
-                else if (spatialInfo.PrimaryLayer == BlockSpatialAnalyzer.LayerType.Guts)
-                {
-                    baseColor = Black;
-                }
-                else if (spatialInfo.PrimaryLayer == BlockSpatialAnalyzer.LayerType.Exterior)
-                {
-                    // Check if it's a functional block
-                    if (functional.BlockToCluster.TryGetValue(block, out var clusterId))
+                    if (colorIndex >= 0 && colorIndex < _colorPalette.Length)
                     {
-                        var cluster = functional.Clusters.First(c => c.Id == clusterId);
-                        
-                        // Weapons get dark grey
-                        if (cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.OffensiveWeapons ||
-                            cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.DefensiveWeapons)
-                        {
-                            baseColor = DarkGrey;
-                        }
-                        // Sensors and comms get dark colors for stealth
-                        else if (cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.Sensors ||
-                                 cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.Communication)
-                        {
-                            baseColor = Black;
-                        }
+                        grid.ColorBlocks(block.Min, block.Max, _colorPalette[colorIndex], false);
+                        appliedCount++;
                     }
-                }
-                
-                // Apply to all positions occupied by the block
-                for (var x = block.Min.X; x <= block.Max.X; x++)
-                {
-                    for (var y = block.Min.Y; y <= block.Max.Y; y++)
+                    else
                     {
-                        for (var z = block.Min.Z; z <= block.Max.Z; z++)
-                        {
-                            _colorResult[new Vector3I(x, y, z)] = baseColor;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ApplyCamouflagePattern(
-            MyCubeGrid grid,
-            Dictionary<MySlimBlock, BlockSpatialAnalyzer.BlockSpatialInfo> spatial,
-            SurfaceAnalyzer.SurfaceAnalysis surfaces,
-            ShipGeometryAnalyzer.GeometryAnalysis geometry)
-        {
-            // Get exterior positions
-            var exteriorPositions = _spatialAnalyzer.GetBlocksByLayer(spatial, BlockSpatialAnalyzer.LayerType.Exterior);
-            
-            // Determine camouflage type based on ship profile
-            PatternGenerator.PatternType patternType;
-            float scale;
-            
-            switch (geometry.Profile)
-            {
-                case ShipGeometryAnalyzer.ShipProfile.Wedge:
-                case ShipGeometryAnalyzer.ShipProfile.Flat:
-                    // Angular ships get geometric camo
-                    patternType = PatternGenerator.PatternType.Hexagonal;
-                    scale = 3.0f;
-                    break;
-                    
-                case ShipGeometryAnalyzer.ShipProfile.Cylindrical:
-                case ShipGeometryAnalyzer.ShipProfile.Elongated:
-                    // Smooth ships get organic camo
-                    patternType = PatternGenerator.PatternType.Noise;
-                    scale = 2.0f;
-                    break;
-                    
-                default:
-                    // Default digital camo
-                    patternType = PatternGenerator.PatternType.Checkerboard;
-                    scale = 2.0f;
-                    break;
-            }
-            
-            // Generate camouflage pattern
-            var camoParams = new PatternGenerator.PatternParameters
-            {
-                Type = patternType,
-                Origin = geometry.GeometricCenter,
-                Scale = scale,
-                ColorIndices = new[] { DarkGreen, OliveGreen, DarkBrown },
-                Frequency = 1.5f
-            };
-            
-            var camoPattern = _patternGenerator.GeneratePattern(
-                grid,
-                exteriorPositions.Select(p => grid.GetCubeBlock(p)).Where(b => b != null).ToHashSet(),
-                camoParams
-            );
-            
-            // Apply camouflage only to armor blocks
-            foreach (var kvp in camoPattern)
-            {
-                var block = grid.GetCubeBlock(kvp.Key);
-                if (block != null && block.FatBlock == null && exteriorPositions.Contains(kvp.Key))
-                {
-                    _colorResult[kvp.Key] = kvp.Value;
-                }
-            }
-            
-            // Add wear and weathering to edges
-            foreach (var edge in surfaces.Edges)
-            {
-                foreach (var pos in edge.Positions)
-                {
-                    if (_colorResult.ContainsKey(pos))
-                    {
-                        // Darken edges for worn look
-                        _colorResult[pos] = Black;
-                    }
-                }
-            }
-        }
-
-        private void ApplyFunctionalSystemColors(FunctionalClusterAnalyzer.ClusterAnalysis functional)
-        {
-            foreach (var cluster in functional.Clusters)
-            {
-                var color = DetermineClusterColor(cluster);
-                
-                foreach (var block in cluster.Blocks)
-                {
-                    // Only color if not already colored by more important system
-                    for (var x = block.Min.X; x <= block.Max.X; x++)
-                    {
-                        for (var y = block.Min.Y; y <= block.Max.Y; y++)
-                        {
-                            for (var z = block.Min.Z; z <= block.Max.Z; z++)
-                            {
-                                var pos = new Vector3I(x, y, z);
-                                
-                                // Weapons and critical systems override camo
-                                if (cluster.Importance > 0.7f || 
-                                    cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.OffensiveWeapons ||
-                                    cluster.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.DefensiveWeapons)
-                                {
-                                    _colorResult[pos] = color;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private int DetermineClusterColor(FunctionalClusterAnalyzer.FunctionalCluster cluster)
-        {
-            switch (cluster.SystemType)
-            {
-                case FunctionalClusterAnalyzer.FunctionalSystemType.OffensiveWeapons:
-                case FunctionalClusterAnalyzer.FunctionalSystemType.DefensiveWeapons:
-                    return DarkGrey;
-                    
-                case FunctionalClusterAnalyzer.FunctionalSystemType.PowerGeneration:
-                case FunctionalClusterAnalyzer.FunctionalSystemType.PowerStorage:
-                    return cluster.IsPrimary ? Warning : FunctionalDark;
-                    
-                case FunctionalClusterAnalyzer.FunctionalSystemType.MainThrusters:
-                case FunctionalClusterAnalyzer.FunctionalSystemType.ManeuveringThrusters:
-                    return Black;
-                    
-                case FunctionalClusterAnalyzer.FunctionalSystemType.CommandAndControl:
-                    return InteriorGrey;
-                    
-                case FunctionalClusterAnalyzer.FunctionalSystemType.CargoStorage:
-                case FunctionalClusterAnalyzer.FunctionalSystemType.FluidStorage:
-                    return SandBrown;
-                    
-                case FunctionalClusterAnalyzer.FunctionalSystemType.Medical:
-                    return InteriorGrey; // Would be white with red cross in reality
-                    
-                default:
-                    return FunctionalDark;
-            }
-        }
-
-        private void ApplyNavigationMarkings(
-            MyCubeGrid grid,
-            SpatialOrientationAnalyzer.OrientationAnalysis orientation,
-            FunctionalClusterAnalyzer.ClusterAnalysis functional)
-        {
-            // Navigation lights
-            var lightClusters = functional.Clusters.Where(c => 
-                c.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.Lighting);
-            
-            foreach (var cluster in lightClusters)
-            {
-                foreach (var block in cluster.Blocks)
-                {
-                    if (_orientationAnalyzer.IsPortSide(block, orientation))
-                    {
-                        _colorResult[block.Position] = NavRed;
-                    }
-                    else if (_orientationAnalyzer.IsStarboardSide(block, orientation))
-                    {
-                        _colorResult[block.Position] = NavGreen;
+                        LogWarning($"Invalid color index {colorIndex} for block at {block.Position}");
                     }
                 }
             }
             
-            // Hazard stripes on dangerous areas
-            var dangerousClusters = functional.Clusters.Where(c =>
-                c.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.OffensiveWeapons ||
-                c.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.MainThrusters);
-            
-            foreach (var cluster in dangerousClusters)
-            {
-                // Add warning stripes around weapons and thrusters
-                var positions = cluster.Blocks.SelectMany(b =>
-                {
-                    var posList = new List<Vector3I>();
-                    for (var x = b.Min.X; x <= b.Max.X; x++)
-                        for (var y = b.Min.Y; y <= b.Max.Y; y++)
-                            for (var z = b.Min.Z; z <= b.Max.Z; z++)
-                                posList.Add(new Vector3I(x, y, z));
-                    return posList;
-                }).ToHashSet();
-                
-                // Find adjacent blocks for warning stripes
-                foreach (var pos in positions)
-                {
-                    var directions = new[]
-                    {
-                        Vector3I.Up, Vector3I.Down, Vector3I.Left,
-                        Vector3I.Right, Vector3I.Forward, Vector3I.Backward
-                    };
-                    
-                    foreach (var dir in directions)
-                    {
-                        var adjacentPos = pos + dir;
-                        var adjacentBlock = grid.GetCubeBlock(adjacentPos);
-                        
-                        if (adjacentBlock != null && adjacentBlock.FatBlock == null)
-                        {
-                            // Apply warning color to adjacent armor blocks
-                            if (!positions.Contains(adjacentPos))
-                            {
-                                _colorResult[adjacentPos] = Warning;
-                            }
-                        }
-                    }
-                }
-            }
+            LogInfo($"Applied colors to {appliedCount} blocks");
         }
 
         protected override void GeneratePalette(MyCubeGrid grid)
         {
-            // Use ColorSchemeGenerator to create dynamic military palette
-            var colorGenerator = new ColorSchemeGenerator();
-            var generatedColors = colorGenerator.GenerateFactionPalette("military");
-            
-            // Map generated colors to our specific needs
-            var militaryColors = new List<Vector3>();
-            
-            // Core military colors (from generated palette)
-            if (generatedColors.Length >= 5)
+            try
             {
-                militaryColors.Add(generatedColors[0]); // 0: Dark Green (primary)
-                militaryColors.Add(generatedColors[1]); // 1: Olive Green (secondary)
-                militaryColors.Add(ColorMaskExtensions.CreateGreyMask(30)); // 2: Dark Grey
-                militaryColors.Add(ColorMaskExtensions.CreateGreyMask(5));  // 3: Black
-                militaryColors.Add(generatedColors[2]); // 4: Dark Brown (camo)
-                militaryColors.Add(generatedColors[3]); // 5: Sand Brown (camo)
-            }
-            else
-            {
-                // Fallback if generation fails
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(120, 80, 30)); // Dark Green
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(80, 60, 40));  // Olive Green
-                militaryColors.Add(ColorMaskExtensions.CreateGreyMask(30)); // Dark Grey
-                militaryColors.Add(ColorMaskExtensions.CreateGreyMask(5));  // Black
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(30, 70, 25));  // Dark Brown
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(40, 35, 76));  // Sand Brown
-            }
-            
-            // Special purpose colors (always the same)
-            militaryColors.Add(ColorMaskExtensions.CreateColorMask(33, 100, 100)); // 6: Warning Orange
-            militaryColors.Add(ColorMaskExtensions.CreateColorMask(0, 100, 80));   // 7: Navigation Red
-            militaryColors.Add(ColorMaskExtensions.CreateColorMask(120, 100, 80)); // 8: Navigation Green
-            militaryColors.Add(ColorMaskExtensions.CreateGreyMask(50));            // 9: Interior Grey
-            militaryColors.Add(ColorMaskExtensions.CreateGreyMask(15));            // 10: Functional Dark
-            militaryColors.Add(ColorMaskExtensions.CreateGreyMask(40));            // 11: Functional Light
-            
-            // Add remaining generated colors or variations
-            if (generatedColors.Length > 5)
-            {
-                for (var i = 5; i < generatedColors.Length && militaryColors.Count < 14; i++)
+                // Use ColorSchemeGenerator for dynamic palette
+                var colorGenerator = new ColorSchemeGenerator();
+                var generatedColors = colorGenerator.GenerateFactionPalette("military");
+                
+                // Initialize color scheme with generated colors
+                _colorScheme.InitializePalette(generatedColors);
+                _colorPalette = _colorScheme.ColorPalette;
+                
+                if (_colorPalette == null || _colorPalette.Length == 0)
                 {
-                    militaryColors.Add(generatedColors[i]);
+                    throw new InvalidOperationException("Failed to generate color palette");
                 }
+                
+                LogInfo($"Generated palette with {_colorPalette.Length} colors");
             }
-            
-            // Fill to 14 colors if needed
-            while (militaryColors.Count < 14)
+            catch (Exception ex)
             {
-                // Add variations of existing colors
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(120, 90, 15)); // Very Dark Green
-                militaryColors.Add(ColorMaskExtensions.CreateColorMask(90, 40, 50));  // Light Olive
+                LogError($"Palette generation failed: {ex.Message}");
+                // Use fallback palette
+                _colorScheme.InitializePalette(null);
+                _colorPalette = _colorScheme.ColorPalette;
             }
-            
-            _colors = militaryColors.Take(14).ToArray();
         }
-        
+
         public override void RunTest(MyCubeGrid grid, string[] args)
         {
             GeneratePalette(grid);
@@ -406,25 +199,102 @@ namespace PaintJob.App.PaintAlgorithms
             if (args.Length == 0)
             {
                 // Test all colors
-                var blocks = grid.GetBlocks().ToList();
-                for (var i = 0; i < blocks.Count && i < _colors.Length; i++)
-                {
-                    var block = blocks[i];
-                    grid.ColorBlocks(block.Min, block.Max, _colors[i % _colors.Length], false);
-                }
+                TestAllColors(grid);
             }
-            else
+            else if (int.TryParse(args[0], out var colorNumber))
             {
                 // Test specific color
-                var colorNumber = int.Parse(args[0]);
-                var color = _colors[Math.Min(colorNumber, _colors.Length - 1)];
-                
-                var blocks = grid.GetBlocks();
-                foreach (var block in blocks)
+                TestSpecificColor(grid, colorNumber);
+            }
+            else if (args[0].Equals("pattern", StringComparison.OrdinalIgnoreCase))
+            {
+                // Test camouflage pattern
+                TestCamouflagePattern(grid, args.Skip(1).ToArray());
+            }
+        }
+
+        private void TestAllColors(MyCubeGrid grid)
+        {
+            var blocks = grid.GetBlocks().ToList();
+            for (var i = 0; i < blocks.Count && i < _colorPalette.Length; i++)
+            {
+                var block = blocks[i];
+                grid.ColorBlocks(block.Min, block.Max, _colorPalette[i % _colorPalette.Length], false);
+            }
+        }
+
+        private void TestSpecificColor(MyCubeGrid grid, int colorNumber)
+        {
+            var colorIndex = Math.Min(Math.Max(0, colorNumber), _colorPalette.Length - 1);
+            var color = _colorPalette[colorIndex];
+            
+            foreach (var block in grid.GetBlocks())
+            {
+                grid.ColorBlocks(block.Min, block.Max, color, false);
+            }
+        }
+
+        private void TestCamouflagePattern(MyCubeGrid grid, string[] patternArgs)
+        {
+            var patternName = patternArgs.Length > 0 ? patternArgs[0] : "digital";
+            
+            try
+            {
+                var strategy = _camouflageFactory.GetStrategy(patternName);
+                var parameters = new PatternParameters
                 {
-                    grid.ColorBlocks(block.Min, block.Max, color, false);
+                    Origin = grid.WorldMatrix.Translation,
+                    Scale = 2.0f,
+                    Frequency = 1.5f
+                };
+                
+                var positions = grid.GetBlocks().Select(b => b.Position).ToList();
+                var colorIndices = new[] { 0, 1, 4 }; // Primary, secondary, accent
+                
+                var pattern = strategy.GeneratePattern(grid, positions, colorIndices, parameters);
+                
+                foreach (var kvp in pattern)
+                {
+                    var block = grid.GetCubeBlock(kvp.Key);
+                    if (block != null)
+                    {
+                        grid.ColorBlocks(block.Min, block.Max, _colorPalette[kvp.Value], false);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                LogError($"Pattern test failed: {ex.Message}");
+            }
+        }
+
+        private List<IBlockPainter> InitializeDefaultPainters()
+        {
+            var spatialAnalyzer = _analyzerFactory.CreateSpatialAnalyzer();
+            var orientationAnalyzer = _analyzerFactory.CreateOrientationAnalyzer();
+            
+            return new List<IBlockPainter>
+            {
+                new BaseColorPainter(),
+                new CamouflagePainter(_camouflageFactory, spatialAnalyzer),
+                new FunctionalSystemPainter(),
+                new NavigationMarkingsPainter(orientationAnalyzer)
+            };
+        }
+
+        private void LogInfo(string message)
+        {
+            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", message);
+        }
+
+        private void LogWarning(string message)
+        {
+            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", $"WARNING: {message}");
+        }
+
+        private void LogError(string message)
+        {
+            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", $"ERROR: {message}");
         }
     }
 }

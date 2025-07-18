@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PaintJob.App.PaintFactors;
 using Sandbox.Game.Entities;

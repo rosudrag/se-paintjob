@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PaintJob.App.Models;
+﻿using System.Text;
 using Sandbox.ModAPI;
 
 namespace PaintJob.App.Systems
