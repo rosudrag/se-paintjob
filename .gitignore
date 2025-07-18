@@ -360,3 +360,4 @@ MigrationBackup/
 
 # JetBrains Rider project files
 /.idea/
+sh.exe.stackdump

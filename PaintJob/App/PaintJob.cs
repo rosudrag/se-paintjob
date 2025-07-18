@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PaintJob.App.Extensions;
 using PaintJob.App.Models;
 using PaintJob.App.PaintAlgorithms;
-using PaintJob.App.Systems;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -12,29 +12,47 @@ namespace PaintJob.App
 {
     public class PaintJob : IPaintJob
     {
-        private readonly Dictionary<Style, PaintAlgorithm> _algorithms;
-        private readonly IPaintJobStateSystem _stateSystem;
+        private readonly Dictionary<Style, PaintAlgorithm> _algorithms = new Dictionary<Style, PaintAlgorithm>
+        {
+            {
+                Style.Rudimentary, new RudimentaryPaintJob()
+            },
+            {
+                Style.Military, new MilitaryPaintJob()
+            }
+        };
 
-        public PaintJob(IPaintJobStateSystem stateSystem)
+        public void Run(string[] args = null)
         {
-            _stateSystem = stateSystem;
-            _algorithms = new Dictionary<Style, PaintAlgorithm>
+            Style style;
+            string[] algorithmArgs = null;
+            
+            // Parse style from args if provided, otherwise use current style
+            if (args != null && args.Length > 0)
             {
+                if (Enum.TryParse(args[0], true, out style))
                 {
-                    Style.Rudimentary, new RudimentaryPaintJob()
+                    // Style was provided in args, pass remaining args to algorithm
+                    algorithmArgs = args.Length > 1 ? args.Skip(1).ToArray() : null;
                 }
-            };
-        }
-        public void Run()
-        {
-            var currentStyle = _stateSystem.GetCurrentStyle();
-            if (!_algorithms.ContainsKey(currentStyle))
+                else
+                {
+                    // First arg wasn't a valid style, show error
+                    MyAPIGateway.Utilities.ShowNotification($"Unknown style '{args[0]}'. Use /paint help for options.", 5000, MyFontEnum.Red);
+                    return;
+                }
+            }
+            else
             {
-                MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
-                return;
+                // No args provided, default to rudimentary
+                style = Style.Rudimentary;
             }
             
-            var paintAlgorithm = _algorithms[currentStyle];
+            if (!_algorithms.TryGetValue(style, out var paintAlgorithm))
+            {
+                MyAPIGateway.Utilities.ShowNotification($"Style '{style}' not found.", 5000, MyFontEnum.Red);
+                return;
+            }
 
             try
             {
@@ -42,9 +60,18 @@ namespace PaintJob.App
 
                 if (targetGrid != null)
                 {
+                    // Configure algorithm with args if it's military
+                    if (paintAlgorithm is MilitaryPaintJob militaryPaintJob && algorithmArgs != null && algorithmArgs.Length > 0)
+                    {
+                        militaryPaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    
                     paintAlgorithm.Run(targetGrid as MyCubeGrid);
 
-                    MyAPIGateway.Utilities.ShowNotification("Grid painted with the current style.", 5000, MyFontEnum.Green);
+                    var notification = style == Style.Military && algorithmArgs != null && algorithmArgs.Length > 0
+                        ? $"Grid painted with {style} style (variant: {algorithmArgs[0]})."
+                        : $"Grid painted with {style} style.";
+                    MyAPIGateway.Utilities.ShowNotification(notification, 5000, MyFontEnum.Green);
                 }
                 else
                 {
@@ -60,41 +87,6 @@ namespace PaintJob.App
                 paintAlgorithm.Clean();
             }
 
-        }
-        public void RunTest(string[] args)
-        {
-            var currentStyle = _stateSystem.GetCurrentStyle();
-            if (!_algorithms.ContainsKey(currentStyle))
-            {
-                MyAPIGateway.Utilities.ShowNotification("No style found for painting.", 5000, MyFontEnum.Red);
-                return;
-            }
-            
-            var paintAlgorithm = _algorithms[currentStyle];
-
-            try
-            {
-                var targetGrid = GridUtilities.GetGridInFrontOfPlayer();
-
-                if (targetGrid != null)
-                {
-                    paintAlgorithm.RunTest(targetGrid as MyCubeGrid, args);
-
-                    MyAPIGateway.Utilities.ShowNotification("Test OK!", 5000, MyFontEnum.Green);
-                }
-                else
-                {
-                    MyAPIGateway.Utilities.ShowNotification("No grid found in front of the player.", 5000, MyFontEnum.Red);
-                }
-            }
-            catch (Exception e)
-            {
-                MyAPIGateway.Utilities.ShowMessage("Logger", $"Test BAD: {e.Message}");
-            }
-            finally
-            {
-                paintAlgorithm.Clean();
-            }
         }
     }
 

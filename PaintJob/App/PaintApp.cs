@@ -6,12 +6,10 @@ namespace PaintJob.App
     public class PaintApp : IPaintApp
     {
         private readonly ICommandInterpreter _interpreter;
-        private readonly IPaintJobStateSystem _stateSystem;
 
-        public PaintApp(ICommandInterpreter interpreter, IPaintJobStateSystem stateSystem)
+        public PaintApp(ICommandInterpreter interpreter)
         {
             _interpreter = interpreter;
-            _stateSystem = stateSystem;
         }
 
 
@@ -21,14 +19,13 @@ namespace PaintJob.App
         }
         public void Save()
         {
-            _stateSystem.Save();
+            // No longer needed
         }
         
         public void Initialize()
         {
             MyAPIGateway.Utilities.MessageEnteredSender += PaintCommand;
             MyAPIGateway.Utilities.ShowMessage("Logger", "Paint plugin initialized");
-            _stateSystem.Load();
         }
         private void PaintCommand(ulong sender, string messageText, ref bool sendToOthers)
         {

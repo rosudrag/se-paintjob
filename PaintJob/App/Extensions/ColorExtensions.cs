@@ -1,5 +1,4 @@
 ﻿using System;
-using VRageMath;
 
 namespace PaintJob.App.Extensions
 {

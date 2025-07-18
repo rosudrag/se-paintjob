@@ -13,17 +13,13 @@ namespace PaintJob
             var helpSystem = new PaintJobHelpSystem();
             SimpleIoC.Register<IPaintJobHelpSystem, PaintJobHelpSystem>(helpSystem);
             
-            var stateSystem = new PaintJobStateSystem();
-            SimpleIoC.Register<IPaintJobStateSystem, PaintJobStateSystem>(stateSystem);
-            
-            var paintJob = new PaintJob.App.PaintJob(stateSystem);
+            var paintJob = new PaintJob.App.PaintJob();
             SimpleIoC.Register<IPaintJob, PaintJob.App.PaintJob>(paintJob);
             
-            var commandInterpreter = new CommandInterpreter(helpSystem, stateSystem, paintJob);
+            var commandInterpreter = new CommandInterpreter(helpSystem, paintJob);
             SimpleIoC.Register<ICommandInterpreter, CommandInterpreter>(commandInterpreter);
             
-            
-            var paintApp = new PaintApp(commandInterpreter, stateSystem);
+            var paintApp = new PaintApp(commandInterpreter);
             SimpleIoC.Register<IPaintApp, PaintApp>(paintApp);
 
         }

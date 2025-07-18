@@ -1,15 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaintJob", "PaintJob\PaintJob.csproj", "{C45DBF85-2522-4772-8C8E-97755E1ED59E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{7968E473-564E-466F-B3B8-B9395F501536}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75919FCB-E258-4690-ABD5-44597B3D9D65}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		Edit-and-run-before-opening-solution.bat = Edit-and-run-before-opening-solution.bat
 		README.md = README.md
 		ReplaceGuidsAndRename.py = ReplaceGuidsAndRename.py
-		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Global
@@ -20,9 +23,16 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C45DBF85-2522-4772-8C8E-97755E1ED59E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{7968e473-564e-466f-b3b8-b9395f501536}*SharedItemsImports = 13
+		Shared\Shared.projitems*{c45dbf85-2522-4772-8c8e-97755e1ed59e}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

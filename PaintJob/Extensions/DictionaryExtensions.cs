@@ -6,7 +6,7 @@ namespace PaintJob.Extensions
     {
         public static void AddRange<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other)
         {
-            foreach (KeyValuePair<K, V> keyValuePair in other)
+            foreach (var keyValuePair in other)
                 dict.Add(keyValuePair.Key, keyValuePair.Value);
         }
     }

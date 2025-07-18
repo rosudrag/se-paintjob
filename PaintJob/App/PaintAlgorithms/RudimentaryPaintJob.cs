@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PaintJob.App.PaintFactors;
 using Sandbox.Game.Entities;
@@ -45,8 +44,8 @@ namespace PaintJob.App.PaintAlgorithms
                 if (!_colorResult.TryGetValue(block.Position, out var colorIndex))
                     continue;
                 
-                grid.ColorBlocks(block.Position, block.Position, _colors[colorIndex], false);
-                
+                // Color all positions occupied by multi-block structures
+                grid.ColorBlocks(block.Min, block.Max, _colors[colorIndex], false);
             }
         }
 
@@ -55,18 +54,5 @@ namespace PaintJob.App.PaintAlgorithms
             _colors = MyPlayer.ColorSlots.ToArray();
         }
         
-        public override void RunTest(MyCubeGrid grid, string[] args)
-        {
-            GeneratePalette(grid);
-            
-            var colorNumber = int.Parse(args[0]);
-            var color = _colors[colorNumber];
-            
-            var blocks = grid.GetBlocks();
-            foreach (var block in blocks)
-            {
-                grid.ColorBlocks(block.Position, block.Position, color, false);
-            }
-        }
     }
 }

@@ -520,11 +520,38 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="App\Analysis\BlockSpatialAnalyzer.cs" />
+        <Compile Include="App\Analysis\FunctionalClusterAnalyzer.cs" />
+        <Compile Include="App\Analysis\PatternGenerator.cs" />
+        <Compile Include="App\Analysis\SectionDetector.cs" />
+        <Compile Include="App\Analysis\ShipGeometryAnalyzer.cs" />
+        <Compile Include="App\Analysis\SpatialOrientationAnalyzer.cs" />
+        <Compile Include="App\Analysis\SurfaceAnalyzer.cs" />
         <Compile Include="App\Extensions\ColorExtensions.cs" />
+        <Compile Include="App\Extensions\ColorMaskExtensions.cs" />
         <Compile Include="App\Extensions\GridUtilities.cs" />
         <Compile Include="App\IPaintApp.cs" />
         <Compile Include="App\IPaintJob.cs" />
         <Compile Include="App\Models\Style.cs" />
+        <Compile Include="App\PaintAlgorithms\MilitaryPaintJob.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\MilitaryColorScheme.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\MathUtils.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\CachedAnalysisContext.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\IAnalyzerFactory.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\IColorScheme.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\Painters\IBlockPainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\Patterns\IPatternStrategy.cs" />
+        <Compile Include="App\PaintAlgorithms\Common\Patterns\PatternFactory.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Analyzers\MilitaryAnalyzerFactory.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Camouflage\CamouflageFactory.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Camouflage\DigitalCamouflageStrategy.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Camouflage\HexagonalCamouflageStrategy.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Camouflage\OrganicCamouflageStrategy.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\BaseColorPainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\CamouflagePainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\FunctionalSystemPainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\NavigationMarkingsPainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\LetterBlockPainter.cs" />
         <Compile Include="App\PaintAlgorithms\RudimentaryPaintJob.cs" />
         <Compile Include="App\PaintAlgorithms\PaintAlgorithm.cs" />
         <Compile Include="App\PaintApp.cs" />
@@ -538,9 +565,8 @@
         <Compile Include="App\Systems\CommandInterpreter.cs" />
         <Compile Include="App\Systems\ICommandInterpreter.cs" />
         <Compile Include="App\Systems\IPaintJobHelpSystem.cs" />
-        <Compile Include="App\Systems\IPaintJobStateSystem.cs" />
         <Compile Include="App\Systems\PaintJobHelpSystem.cs" />
-        <Compile Include="App\Systems\PaintJobStateSystem.cs" />
+        <Compile Include="App\Utils\ColorSchemeGenerator.cs" />
         <Compile Include="Extensions\DictionaryExtensions.cs" />
         <Compile Include="GUI\MyPluginConfigDialog.cs" />
         <Compile Include="IoC.cs" />
