@@ -112,7 +112,7 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
         private float SimplexNoise(float x, float y, float z)
         {
             // Simplified noise function - in production, use a proper Simplex noise implementation
-            var n = Math.Sin(x * NOISE_X_MULTIPLIER + y * NOISE_Y_MULTIPLIER + z * NOISE_Z_MULTIPLIER) * NOISE_SCALE;
+            var n = Math.Sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453;
             return (float)(n - Math.Floor(n)) * 2f - 1f;
         }
 
