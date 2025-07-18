@@ -33,6 +33,8 @@ namespace PaintJob.App.PaintAlgorithms.Military.Painters
             var lightClusters = context.Functional.Clusters
                 .Where(c => c.SystemType == FunctionalClusterAnalyzer.FunctionalSystemType.Lighting);
 
+            var lightPositions = new Dictionary<Vector3I, MilitaryColorScheme.ColorIndex>();
+
             foreach (var cluster in lightClusters)
             {
                 foreach (var block in cluster.Blocks)
@@ -53,8 +55,12 @@ namespace PaintJob.App.PaintAlgorithms.Military.Painters
                     }
 
                     colorResults[block.Position] = (int)navColor;
+                    lightPositions[block.Position] = navColor;
                 }
             }
+
+            // Apply subtle tint to blocks adjacent to navigation lights
+            ApplyNavigationLightSpill(context, colorResults, lightPositions);
         }
 
         private void ApplyHazardMarkings(MyCubeGrid grid, PaintContext context, Dictionary<Vector3I, int> colorResults)
@@ -136,6 +142,53 @@ namespace PaintJob.App.PaintAlgorithms.Military.Painters
                 {
                     colorResults[adjacentPos] = warningColor;
                     processedPositions.Add(adjacentPos);
+                }
+            }
+        }
+        
+        private void ApplyNavigationLightSpill(PaintContext context, Dictionary<Vector3I, int> colorResults, Dictionary<Vector3I, MilitaryColorScheme.ColorIndex> lightPositions)
+        {
+            var grid = context.Blocks.FirstOrDefault()?.CubeGrid;
+            if (grid == null) return;
+            
+            var processedPositions = new HashSet<Vector3I>();
+            
+            foreach (var kvp in lightPositions)
+            {
+                var lightPos = kvp.Key;
+                var lightColor = kvp.Value;
+                
+                // Determine which tint color to use
+                var tintColor = lightColor == MilitaryColorScheme.ColorIndex.NavigationPort
+                    ? MilitaryColorScheme.ColorIndex.NavigationPortTint
+                    : MilitaryColorScheme.ColorIndex.NavigationStarboardTint;
+                
+                // Apply tint to adjacent blocks (not diagonal)
+                var directions = new[]
+                {
+                    Vector3I.Up, Vector3I.Down,
+                    Vector3I.Left, Vector3I.Right,
+                    Vector3I.Forward, Vector3I.Backward
+                };
+                
+                foreach (var dir in directions)
+                {
+                    var adjacentPos = lightPos + dir;
+                    
+                    // Skip if already processed or is another light
+                    if (processedPositions.Contains(adjacentPos) || lightPositions.ContainsKey(adjacentPos))
+                        continue;
+                    
+                    var adjacentBlock = grid.GetCubeBlock(adjacentPos);
+                    
+                    // Only apply to blocks that exist and aren't already assigned a special color
+                    if (adjacentBlock != null && (!colorResults.ContainsKey(adjacentPos) || 
+                        colorResults[adjacentPos] == (int)MilitaryColorScheme.ColorIndex.PrimaryHull ||
+                        colorResults[adjacentPos] == (int)MilitaryColorScheme.ColorIndex.SecondaryHull))
+                    {
+                        colorResults[adjacentPos] = (int)tintColor;
+                        processedPositions.Add(adjacentPos);
+                    }
                 }
             }
         }

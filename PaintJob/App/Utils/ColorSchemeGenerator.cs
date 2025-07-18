@@ -114,7 +114,7 @@ namespace PaintJob.App.Utils
         /// </summary>
         public Vector3[] GenerateMilitaryPalette(string variant = "standard")
         {
-            var colors = new Vector3[12];
+            var colors = new Vector3[14]; // Increased to include navigation tints
             
             // Military variant-specific base colors
             float baseHue, baseSat, baseVal;
@@ -178,14 +178,32 @@ namespace PaintJob.App.Utils
             // Warning colors - consistent across environments
             colors[6] = new Vector3(0.092f, 0.95f, 0.85f).HSVToColorMask(); // Hazard Warning (orange)
             
-            // Navigation lights - standard maritime colors
-            colors[7] = new Vector3(0f, 0.85f, 0.75f).HSVToColorMask(); // Port (red)
-            colors[8] = new Vector3(0.333f, 0.85f, 0.75f).HSVToColorMask(); // Starboard (green)
+            // Navigation lights - subdued military versions
+            colors[7] = new Vector3(0f, 0.6f, 0.35f).HSVToColorMask(); // Port (dark red)
+            colors[8] = new Vector3(0.333f, 0.5f, 0.3f).HSVToColorMask(); // Starboard (dark green)
             
             // Interior and functional - neutral with slight environment tint
             colors[9] = new Vector3(baseHue, 0.08f, 0.45f).HSVToColorMask(); // Interior Spaces
             colors[10] = new Vector3(baseHue, 0.12f, 0.18f).HSVToColorMask(); // Functional Dark
             colors[11] = new Vector3(baseHue, 0.1f, 0.38f).HSVToColorMask(); // Functional Light
+            
+            // Navigation light tints - blend with primary hull color
+            var primaryHullHsv = new Vector3(baseHue, baseSat, baseVal);
+            var portHsv = new Vector3(0f, 0.6f, 0.35f);
+            var starboardHsv = new Vector3(0.333f, 0.5f, 0.3f);
+            
+            // Create subtle tints
+            colors[12] = new Vector3(
+                portHsv.X,
+                primaryHullHsv.Y * 0.8f + portHsv.Y * 0.2f,
+                primaryHullHsv.Z * 0.85f + portHsv.Z * 0.15f
+            ).HSVToColorMask(); // Port tint
+            
+            colors[13] = new Vector3(
+                starboardHsv.X,
+                primaryHullHsv.Y * 0.8f + starboardHsv.Y * 0.2f,
+                primaryHullHsv.Z * 0.85f + starboardHsv.Z * 0.15f
+            ).HSVToColorMask(); // Starboard tint
             
             return colors;
         }

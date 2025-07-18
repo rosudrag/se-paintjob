@@ -27,7 +27,9 @@ namespace PaintJob.App.PaintAlgorithms.Military
             NavigationStarboard = 8,// Green - Starboard navigation
             InteriorSpaces = 9,     // Interior Grey - Interior spaces
             FunctionalDark = 10,    // Dark functional blocks
-            FunctionalLight = 11    // Light functional blocks
+            FunctionalLight = 11,   // Light functional blocks
+            NavigationPortTint = 12,    // Subtle red tint for port adjacent blocks
+            NavigationStarboardTint = 13 // Subtle green tint for starboard adjacent blocks
         }
 
         /// <summary>
@@ -101,7 +103,7 @@ namespace PaintJob.App.PaintAlgorithms.Military
 
         private Vector3[] BuildColorPalette(Vector3[] generatedColors)
         {
-            var palette = new Vector3[12];
+            var palette = new Vector3[14]; // Increased to 14 for tint colors
             
             // Use generated colors if available and sufficient
             if (generatedColors != null && generatedColors.Length >= 12)
@@ -111,6 +113,8 @@ namespace PaintJob.App.PaintAlgorithms.Military
                 {
                     palette[i] = generatedColors[i];
                 }
+                // Generate tint colors based on navigation lights
+                GenerateNavigationTints(palette, generatedColors);
             }
             else if (generatedColors != null && generatedColors.Length >= 5)
             {
@@ -123,6 +127,7 @@ namespace PaintJob.App.PaintAlgorithms.Military
                 
                 // Generate remaining colors based on the base palette
                 GenerateRemainingColors(palette, generatedColors);
+                GenerateNavigationTints(palette, generatedColors);
             }
             else
             {
@@ -133,6 +138,7 @@ namespace PaintJob.App.PaintAlgorithms.Military
                 {
                     palette[i] = fullPalette[i];
                 }
+                GenerateNavigationTints(palette, fullPalette);
             }
 
             return palette;
@@ -149,9 +155,9 @@ namespace PaintJob.App.PaintAlgorithms.Military
             // Hazard warning - high saturation yellow/orange
             palette[(int)ColorIndex.HazardWarning] = new Vector3(0.092f, 1f, 0.9f).HSVToColorMask();
             
-            // Navigation lights - standard red/green
-            palette[(int)ColorIndex.NavigationPort] = new Vector3(0f, 0.8f, 0.7f).HSVToColorMask();
-            palette[(int)ColorIndex.NavigationStarboard] = new Vector3(0.333f, 0.8f, 0.7f).HSVToColorMask();
+            // Navigation lights - subdued military red/green
+            palette[(int)ColorIndex.NavigationPort] = new Vector3(0f, 0.6f, 0.35f).HSVToColorMask();
+            palette[(int)ColorIndex.NavigationStarboard] = new Vector3(0.333f, 0.5f, 0.3f).HSVToColorMask();
             
             // Interior - neutral grey based on base brightness
             palette[(int)ColorIndex.InteriorSpaces] = new Vector3(baseHsv.X, baseHsv.Y * 0.1f, 0.5f).HSVToColorMask();
@@ -159,6 +165,32 @@ namespace PaintJob.App.PaintAlgorithms.Military
             // Functional blocks - variations of grey
             palette[(int)ColorIndex.FunctionalDark] = new Vector3(baseHsv.X, baseHsv.Y * 0.2f, 0.15f).HSVToColorMask();
             palette[(int)ColorIndex.FunctionalLight] = new Vector3(baseHsv.X, baseHsv.Y * 0.15f, 0.4f).HSVToColorMask();
+        }
+        
+        private void GenerateNavigationTints(Vector3[] palette, Vector3[] sourceColors)
+        {
+            // Get the port and starboard colors and hull color
+            var portHsv = palette[(int)ColorIndex.NavigationPort].ColorMaskToHSV();
+            var starboardHsv = palette[(int)ColorIndex.NavigationStarboard].ColorMaskToHSV();
+            var hullHsv = palette[(int)ColorIndex.PrimaryHull].ColorMaskToHSV();
+            
+            // Create tinted versions by blending navigation colors with hull color
+            // Port tint: 80% hull color, 20% port color
+            var portTintHsv = new Vector3(
+                portHsv.X, // Keep the hue from port
+                hullHsv.Y * 0.8f + portHsv.Y * 0.2f, // Blend saturation
+                hullHsv.Z * 0.85f + portHsv.Z * 0.15f // Blend value, slightly darker
+            );
+            
+            // Starboard tint: 80% hull color, 20% starboard color  
+            var starboardTintHsv = new Vector3(
+                starboardHsv.X, // Keep the hue from starboard
+                hullHsv.Y * 0.8f + starboardHsv.Y * 0.2f, // Blend saturation
+                hullHsv.Z * 0.85f + starboardHsv.Z * 0.15f // Blend value, slightly darker
+            );
+            
+            palette[(int)ColorIndex.NavigationPortTint] = portTintHsv.HSVToColorMask();
+            palette[(int)ColorIndex.NavigationStarboardTint] = starboardTintHsv.HSVToColorMask();
         }
 
         /// <summary>
