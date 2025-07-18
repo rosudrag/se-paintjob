@@ -54,18 +54,5 @@ namespace PaintJob.App.PaintAlgorithms
             _colors = MyPlayer.ColorSlots.ToArray();
         }
         
-        public override void RunTest(MyCubeGrid grid, string[] args)
-        {
-            GeneratePalette(grid);
-            
-            var colorNumber = int.Parse(args[0]);
-            var color = _colors[colorNumber];
-            
-            var blocks = grid.GetBlocks();
-            foreach (var block in blocks)
-            {
-                grid.ColorBlocks(block.Position, block.Position, color, false);
-            }
-        }
     }
 }

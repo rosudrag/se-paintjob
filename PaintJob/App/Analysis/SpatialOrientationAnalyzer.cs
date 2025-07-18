@@ -310,7 +310,7 @@ namespace PaintJob.App.Analysis
                 return region;
             
             // Fallback to primary region
-            if (Enum.TryParse<ShipRegion>(forwardRegion, out region))
+            if (Enum.TryParse(forwardRegion, out region))
                 return region;
             
             return ShipRegion.Amidships;

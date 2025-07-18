@@ -15,7 +15,5 @@ namespace PaintJob.App.PaintAlgorithms
             GeneratePalette(grid);
             Apply(grid);
         }
-
-        public abstract void RunTest(MyCubeGrid targetGrid, string[] args);
     }
 }

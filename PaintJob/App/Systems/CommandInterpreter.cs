@@ -11,7 +11,7 @@ namespace PaintJob.App.Systems
     {
         private readonly Dictionary<string, Action<string[]>> _commands;
 
-        public CommandInterpreter(IPaintJobHelpSystem helpSystem, IPaintJobStateSystem stateSystem, IPaintJob paintJob)
+        public CommandInterpreter(IPaintJobHelpSystem helpSystem, IPaintJob paintJob)
         {
             _commands = new Dictionary<string, Action<string[]>>
             {
@@ -22,25 +22,7 @@ namespace PaintJob.App.Systems
                     "?", args => helpSystem.DisplayHelp()
                 },
                 {
-                    "state", args => stateSystem.ShowState()
-                },
-                {
-                    "run", args => paintJob.Run()
-                },
-                {
-                  "test", paintJob.RunTest  
-                },
-                {
-                    "style", args => stateSystem.SetStyle(Enum.TryParse<Style>(args[0], out var style) ? style : Style.Rudimentary)
-                },
-                {
-                    "save", _ => stateSystem.Save()
-                },
-                {
-                    "load", _ => stateSystem.Load()
-                },
-                {
-                    "reset", _ => stateSystem.Reset()
+                    "run", args => paintJob.Run(args)
                 }
             };
         }

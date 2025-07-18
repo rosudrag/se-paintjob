@@ -564,9 +564,7 @@
         <Compile Include="App\Systems\CommandInterpreter.cs" />
         <Compile Include="App\Systems\ICommandInterpreter.cs" />
         <Compile Include="App\Systems\IPaintJobHelpSystem.cs" />
-        <Compile Include="App\Systems\IPaintJobStateSystem.cs" />
         <Compile Include="App\Systems\PaintJobHelpSystem.cs" />
-        <Compile Include="App\Systems\PaintJobStateSystem.cs" />
         <Compile Include="App\Utils\ColorSchemeGenerator.cs" />
         <Compile Include="Extensions\DictionaryExtensions.cs" />
         <Compile Include="GUI\MyPluginConfigDialog.cs" />

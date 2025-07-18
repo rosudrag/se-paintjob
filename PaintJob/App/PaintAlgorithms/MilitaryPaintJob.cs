@@ -27,6 +27,7 @@ namespace PaintJob.App.PaintAlgorithms
         private readonly Dictionary<Vector3I, int> _colorResults;
         
         private Vector3[] _colorPalette;
+        private string _variant = "standard";
 
         public MilitaryPaintJob()
         {
@@ -35,6 +36,15 @@ namespace PaintJob.App.PaintAlgorithms
             _colorScheme = new MilitaryColorScheme();
             _colorResults = new Dictionary<Vector3I, int>();
             _painters = InitializeDefaultPainters();
+        }
+        
+        /// <summary>
+        /// Sets the military variant for color generation.
+        /// </summary>
+        /// <param name="variant">Variant type: standard, stealth, asteroid, industrial, deep_space</param>
+        public void SetVariant(string variant)
+        {
+            _variant = variant;
         }
         
         public override void Clean()
@@ -168,9 +178,14 @@ namespace PaintJob.App.PaintAlgorithms
         {
             try
             {
-                // Use ColorSchemeGenerator for dynamic palette
-                var colorGenerator = new ColorSchemeGenerator();
-                var generatedColors = colorGenerator.GenerateFactionPalette("military");
+                // Use grid entity ID as seed for consistent colors per grid
+                var seed = unchecked((int)grid.EntityId);
+                
+                // Use ColorSchemeGenerator with seed for deterministic palette
+                var colorGenerator = new ColorSchemeGenerator(seed);
+                
+                // Generate full military palette (12 colors) for the specified variant
+                var generatedColors = colorGenerator.GenerateMilitaryPalette(_variant);
                 
                 // Initialize color scheme with generated colors
                 _colorScheme.InitializePalette(generatedColors);
@@ -181,7 +196,7 @@ namespace PaintJob.App.PaintAlgorithms
                     throw new InvalidOperationException("Failed to generate color palette");
                 }
                 
-                LogInfo($"Generated palette with {_colorPalette.Length} colors");
+                LogInfo($"Generated palette with {_colorPalette.Length} colors using seed {seed}");
             }
             catch (Exception ex)
             {
@@ -192,81 +207,6 @@ namespace PaintJob.App.PaintAlgorithms
             }
         }
 
-        public override void RunTest(MyCubeGrid grid, string[] args)
-        {
-            GeneratePalette(grid);
-            
-            if (args.Length == 0)
-            {
-                // Test all colors
-                TestAllColors(grid);
-            }
-            else if (int.TryParse(args[0], out var colorNumber))
-            {
-                // Test specific color
-                TestSpecificColor(grid, colorNumber);
-            }
-            else if (args[0].Equals("pattern", StringComparison.OrdinalIgnoreCase))
-            {
-                // Test camouflage pattern
-                TestCamouflagePattern(grid, args.Skip(1).ToArray());
-            }
-        }
-
-        private void TestAllColors(MyCubeGrid grid)
-        {
-            var blocks = grid.GetBlocks().ToList();
-            for (var i = 0; i < blocks.Count && i < _colorPalette.Length; i++)
-            {
-                var block = blocks[i];
-                grid.ColorBlocks(block.Min, block.Max, _colorPalette[i % _colorPalette.Length], false);
-            }
-        }
-
-        private void TestSpecificColor(MyCubeGrid grid, int colorNumber)
-        {
-            var colorIndex = Math.Min(Math.Max(0, colorNumber), _colorPalette.Length - 1);
-            var color = _colorPalette[colorIndex];
-            
-            foreach (var block in grid.GetBlocks())
-            {
-                grid.ColorBlocks(block.Min, block.Max, color, false);
-            }
-        }
-
-        private void TestCamouflagePattern(MyCubeGrid grid, string[] patternArgs)
-        {
-            var patternName = patternArgs.Length > 0 ? patternArgs[0] : "digital";
-            
-            try
-            {
-                var strategy = _camouflageFactory.GetStrategy(patternName);
-                var parameters = new PatternParameters
-                {
-                    Origin = grid.WorldMatrix.Translation,
-                    Scale = 2.0f,
-                    Frequency = 1.5f
-                };
-                
-                var positions = grid.GetBlocks().Select(b => b.Position).ToList();
-                var colorIndices = new[] { 0, 1, 4 }; // Primary, secondary, accent
-                
-                var pattern = strategy.GeneratePattern(grid, positions, colorIndices, parameters);
-                
-                foreach (var kvp in pattern)
-                {
-                    var block = grid.GetCubeBlock(kvp.Key);
-                    if (block != null)
-                    {
-                        grid.ColorBlocks(block.Min, block.Max, _colorPalette[kvp.Value], false);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError($"Pattern test failed: {ex.Message}");
-            }
-        }
 
         private List<IBlockPainter> InitializeDefaultPainters()
         {

@@ -103,34 +103,62 @@ namespace PaintJob.App.PaintAlgorithms.Military
         {
             var palette = new Vector3[12];
             
-            // Use generated colors if available
-            if (generatedColors != null && generatedColors.Length >= 5)
+            // Use generated colors if available and sufficient
+            if (generatedColors != null && generatedColors.Length >= 12)
             {
+                // Use all generated colors directly
+                for (var i = 0; i < 12; i++)
+                {
+                    palette[i] = generatedColors[i];
+                }
+            }
+            else if (generatedColors != null && generatedColors.Length >= 5)
+            {
+                // Partial generation - use what we have and generate the rest
                 palette[(int)ColorIndex.PrimaryHull] = generatedColors[0];
                 palette[(int)ColorIndex.SecondaryHull] = generatedColors[1];
                 palette[(int)ColorIndex.CamouflageAccent] = generatedColors[2];
                 palette[(int)ColorIndex.DesertVariant] = generatedColors[3];
+                palette[(int)ColorIndex.WeaponSystems] = generatedColors[4];
+                
+                // Generate remaining colors based on the base palette
+                GenerateRemainingColors(palette, generatedColors);
             }
             else
             {
-                // Fallback colors
-                palette[(int)ColorIndex.PrimaryHull] = ColorMaskExtensions.CreateColorMask(120, 80, 30);
-                palette[(int)ColorIndex.SecondaryHull] = ColorMaskExtensions.CreateColorMask(80, 60, 40);
-                palette[(int)ColorIndex.CamouflageAccent] = ColorMaskExtensions.CreateColorMask(30, 70, 25);
-                palette[(int)ColorIndex.DesertVariant] = ColorMaskExtensions.CreateColorMask(40, 35, 76);
+                // Full fallback - generate all colors with a preset seed
+                var generator = new Utils.ColorSchemeGenerator(42); // Fixed seed for consistency
+                var fullPalette = generator.GenerateMilitaryPalette();
+                for (var i = 0; i < 12; i++)
+                {
+                    palette[i] = fullPalette[i];
+                }
             }
 
-            // Fixed colors
-            palette[(int)ColorIndex.WeaponSystems] = ColorMaskExtensions.CreateGreyMask(30);
-            palette[(int)ColorIndex.TechnicalAreas] = ColorMaskExtensions.CreateGreyMask(5);
-            palette[(int)ColorIndex.HazardWarning] = ColorMaskExtensions.CreateColorMask(33, 100, 100);
-            palette[(int)ColorIndex.NavigationPort] = ColorMaskExtensions.CreateColorMask(0, 100, 80);
-            palette[(int)ColorIndex.NavigationStarboard] = ColorMaskExtensions.CreateColorMask(120, 100, 80);
-            palette[(int)ColorIndex.InteriorSpaces] = ColorMaskExtensions.CreateGreyMask(50);
-            palette[(int)ColorIndex.FunctionalDark] = ColorMaskExtensions.CreateGreyMask(15);
-            palette[(int)ColorIndex.FunctionalLight] = ColorMaskExtensions.CreateGreyMask(40);
-
             return palette;
+        }
+        
+        private void GenerateRemainingColors(Vector3[] palette, Vector3[] baseColors)
+        {
+            // Generate remaining functional colors based on the base military colors
+            var baseHsv = baseColors[0].ColorMaskToHSV();
+            
+            // Technical areas - very dark version of primary
+            palette[(int)ColorIndex.TechnicalAreas] = new Vector3(baseHsv.X, baseHsv.Y * 0.5f, baseHsv.Z * 0.2f).HSVToColorMask();
+            
+            // Hazard warning - high saturation yellow/orange
+            palette[(int)ColorIndex.HazardWarning] = new Vector3(0.092f, 1f, 0.9f).HSVToColorMask();
+            
+            // Navigation lights - standard red/green
+            palette[(int)ColorIndex.NavigationPort] = new Vector3(0f, 0.8f, 0.7f).HSVToColorMask();
+            palette[(int)ColorIndex.NavigationStarboard] = new Vector3(0.333f, 0.8f, 0.7f).HSVToColorMask();
+            
+            // Interior - neutral grey based on base brightness
+            palette[(int)ColorIndex.InteriorSpaces] = new Vector3(baseHsv.X, baseHsv.Y * 0.1f, 0.5f).HSVToColorMask();
+            
+            // Functional blocks - variations of grey
+            palette[(int)ColorIndex.FunctionalDark] = new Vector3(baseHsv.X, baseHsv.Y * 0.2f, 0.15f).HSVToColorMask();
+            palette[(int)ColorIndex.FunctionalLight] = new Vector3(baseHsv.X, baseHsv.Y * 0.15f, 0.4f).HSVToColorMask();
         }
 
         /// <summary>

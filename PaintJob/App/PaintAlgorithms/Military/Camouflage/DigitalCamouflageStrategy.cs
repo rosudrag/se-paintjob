@@ -44,7 +44,7 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
                 if (!cells.ContainsKey(cellPos))
                 {
                     // Use noise function for more natural distribution
-                    var noise = CalculateNoise(cellPos, parameters.Frequency, random);
+                    var noise = CalculateNoise(cellPos, parameters.Frequency);
                     var colorIndex = (int)(noise * colorIndices.Length);
                     colorIndex = MathUtils.Clamp(colorIndex, 0, colorIndices.Length - 1);
                     cells[cellPos] = colorIndices[colorIndex];
@@ -59,7 +59,7 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
             return result;
         }
 
-        private float CalculateNoise(Vector3I position, float frequency, Random random)
+        private float CalculateNoise(Vector3I position, float frequency)
         {
             // Multi-octave noise for more interesting patterns
             var noise = 0f;

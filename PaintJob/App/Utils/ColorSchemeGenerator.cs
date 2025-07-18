@@ -26,7 +26,12 @@ namespace PaintJob.App.Utils
             { 0.5f, 1.0f, 0.8f, 1.0f, 0f, 360f } // Lighter
         };
 
-        private readonly Random _random = new Random();
+        private readonly Random _random;
+        
+        public ColorSchemeGenerator(int? seed = null)
+        {
+            _random = seed.HasValue ? new Random(seed.Value) : new Random();
+        }
 
         public enum Preset
         {
@@ -102,6 +107,87 @@ namespace PaintJob.App.Utils
                 default:
                     return GenerateColorMasks(null, Scheme.Default, Preset.None);
             }
+        }
+        
+        /// <summary>
+        /// Generates a complete military color palette with 12 colors.
+        /// </summary>
+        public Vector3[] GenerateMilitaryPalette(string variant = "standard")
+        {
+            var colors = new Vector3[12];
+            
+            // Military variant-specific base colors
+            float baseHue, baseSat, baseVal;
+            float accentHue;
+            
+            switch (variant.ToLower())
+            {
+                case "stealth":
+                    baseHue = 0f; // Pure black/grey
+                    baseSat = 0.05f;
+                    baseVal = 0.15f;
+                    accentHue = 0.583f; // Dark blue accent
+                    break;
+                    
+                case "asteroid":
+                    baseHue = 0.083f; // Orange-brown like asteroid rock
+                    baseSat = 0.25f;
+                    baseVal = 0.35f;
+                    accentHue = 0.056f; // Reddish brown
+                    break;
+                    
+                case "industrial":
+                    baseHue = 0.167f; // Yellow-grey (industrial warning colors)
+                    baseSat = 0.15f;
+                    baseVal = 0.45f;
+                    accentHue = 0.092f; // Orange accent
+                    break;
+                    
+                case "deep_space":
+                    baseHue = 0.667f; // Deep blue
+                    baseSat = 0.3f;
+                    baseVal = 0.25f;
+                    accentHue = 0.75f; // Purple accent
+                    break;
+                    
+                case "standard":
+                default:
+                    baseHue = 0.222f; // Military green-grey
+                    baseSat = 0.35f;
+                    baseVal = 0.4f;
+                    accentHue = 0.167f; // Yellow-green accent
+                    break;
+            }
+            
+            // Generate base camouflage colors with variation
+            var hueVariation = 0.04f + (float)_random.NextDouble() * 0.02f;
+            var satVariation = 0.1f + (float)_random.NextDouble() * 0.05f;
+            var valVariation = 0.08f + (float)_random.NextDouble() * 0.04f;
+            
+            colors[0] = new Vector3(baseHue, baseSat, baseVal).HSVToColorMask(); // Primary Hull
+            colors[1] = new Vector3(baseHue + hueVariation, baseSat - satVariation, baseVal - valVariation).HSVToColorMask(); // Secondary Hull
+            colors[2] = new Vector3(accentHue, baseSat + satVariation, baseVal * 0.7f).HSVToColorMask(); // Camo Accent
+            colors[3] = new Vector3(baseHue - hueVariation, baseSat * 0.8f, baseVal + valVariation).HSVToColorMask(); // Variant
+            
+            // Weapon systems - metallic greys with slight environment tint
+            colors[4] = new Vector3(baseHue, 0.1f, 0.3f).HSVToColorMask(); // Weapon Systems
+            
+            // Technical and functional areas - very dark with environment tint
+            colors[5] = new Vector3(baseHue, 0.15f, 0.12f).HSVToColorMask(); // Technical Areas
+            
+            // Warning colors - consistent across environments
+            colors[6] = new Vector3(0.092f, 0.95f, 0.85f).HSVToColorMask(); // Hazard Warning (orange)
+            
+            // Navigation lights - standard maritime colors
+            colors[7] = new Vector3(0f, 0.85f, 0.75f).HSVToColorMask(); // Port (red)
+            colors[8] = new Vector3(0.333f, 0.85f, 0.75f).HSVToColorMask(); // Starboard (green)
+            
+            // Interior and functional - neutral with slight environment tint
+            colors[9] = new Vector3(baseHue, 0.08f, 0.45f).HSVToColorMask(); // Interior Spaces
+            colors[10] = new Vector3(baseHue, 0.12f, 0.18f).HSVToColorMask(); // Functional Dark
+            colors[11] = new Vector3(baseHue, 0.1f, 0.38f).HSVToColorMask(); // Functional Light
+            
+            return colors;
         }
 
         private Vector3[] GenerateScheme(Vector3 baseHsv, Scheme scheme)
