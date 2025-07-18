@@ -551,6 +551,7 @@
         <Compile Include="App\PaintAlgorithms\Military\Painters\CamouflagePainter.cs" />
         <Compile Include="App\PaintAlgorithms\Military\Painters\FunctionalSystemPainter.cs" />
         <Compile Include="App\PaintAlgorithms\Military\Painters\NavigationMarkingsPainter.cs" />
+        <Compile Include="App\PaintAlgorithms\Military\Painters\LetterBlockPainter.cs" />
         <Compile Include="App\PaintAlgorithms\RudimentaryPaintJob.cs" />
         <Compile Include="App\PaintAlgorithms\PaintAlgorithm.cs" />
         <Compile Include="App\PaintApp.cs" />

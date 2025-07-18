@@ -218,6 +218,7 @@ namespace PaintJob.App.PaintAlgorithms
                 new BaseColorPainter(),
                 new CamouflagePainter(_camouflageFactory, spatialAnalyzer),
                 new FunctionalSystemPainter(),
+                new LetterBlockPainter(),
                 new NavigationMarkingsPainter(orientationAnalyzer)
             };
         }

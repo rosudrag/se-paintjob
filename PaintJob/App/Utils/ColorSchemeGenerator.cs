@@ -114,7 +114,7 @@ namespace PaintJob.App.Utils
         /// </summary>
         public Vector3[] GenerateMilitaryPalette(string variant = "standard")
         {
-            var colors = new Vector3[14]; // Increased to include navigation tints
+            var colors = new Vector3[16]; // Increased to include navigation tints and letter colors
             
             // Military variant-specific base colors
             float baseHue, baseSat, baseVal;
@@ -204,6 +204,25 @@ namespace PaintJob.App.Utils
                 primaryHullHsv.Y * 0.8f + starboardHsv.Y * 0.2f,
                 primaryHullHsv.Z * 0.85f + starboardHsv.Z * 0.15f
             ).HSVToColorMask(); // Starboard tint
+            
+            // Letter block colors - high contrast with hull
+            if (primaryHullHsv.Z < 0.5f)
+            {
+                // Dark hull - light letters
+                colors[14] = new Vector3(primaryHullHsv.X, primaryHullHsv.Y * 0.3f, 0.85f).HSVToColorMask();
+            }
+            else
+            {
+                // Light hull - dark letters
+                colors[14] = new Vector3(primaryHullHsv.X, primaryHullHsv.Y * 0.5f, 0.15f).HSVToColorMask();
+            }
+            
+            // Letter background - slightly different from hull
+            colors[15] = new Vector3(
+                primaryHullHsv.X,
+                primaryHullHsv.Y * 0.7f,
+                primaryHullHsv.Z + (primaryHullHsv.Z < 0.5f ? 0.1f : -0.1f)
+            ).HSVToColorMask();
             
             return colors;
         }

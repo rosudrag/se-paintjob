@@ -29,7 +29,9 @@ namespace PaintJob.App.PaintAlgorithms.Military
             FunctionalDark = 10,    // Dark functional blocks
             FunctionalLight = 11,   // Light functional blocks
             NavigationPortTint = 12,    // Subtle red tint for port adjacent blocks
-            NavigationStarboardTint = 13 // Subtle green tint for starboard adjacent blocks
+            NavigationStarboardTint = 13, // Subtle green tint for starboard adjacent blocks
+            LetterBlock = 14,       // High contrast color for letter/text blocks
+            LetterBlockBackground = 15 // Background color for letter block surroundings
         }
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace PaintJob.App.PaintAlgorithms.Military
 
         private Vector3[] BuildColorPalette(Vector3[] generatedColors)
         {
-            var palette = new Vector3[14]; // Increased to 14 for tint colors
+            var palette = new Vector3[16]; // Increased to 16 for letter block colors
             
             // Use generated colors if available and sufficient
             if (generatedColors != null && generatedColors.Length >= 12)
@@ -191,6 +193,38 @@ namespace PaintJob.App.PaintAlgorithms.Military
             
             palette[(int)ColorIndex.NavigationPortTint] = portTintHsv.HSVToColorMask();
             palette[(int)ColorIndex.NavigationStarboardTint] = starboardTintHsv.HSVToColorMask();
+            
+            // Generate letter block colors based on variant
+            GenerateLetterBlockColors(palette);
+        }
+        
+        private void GenerateLetterBlockColors(Vector3[] palette)
+        {
+            // Letter blocks should have high contrast with hull
+            var hullHsv = palette[(int)ColorIndex.PrimaryHull].ColorMaskToHSV();
+            
+            // Create high contrast color - opposite value (light on dark, dark on light)
+            Vector3 letterHsv;
+            if (hullHsv.Z < 0.5f)
+            {
+                // Dark hull - use light letters
+                letterHsv = new Vector3(hullHsv.X, hullHsv.Y * 0.3f, 0.85f);
+            }
+            else
+            {
+                // Light hull - use dark letters
+                letterHsv = new Vector3(hullHsv.X, hullHsv.Y * 0.5f, 0.15f);
+            }
+            
+            // Background should be slightly different from primary hull for definition
+            var backgroundHsv = new Vector3(
+                hullHsv.X,
+                hullHsv.Y * 0.7f,
+                MathUtils.Clamp(hullHsv.Z + (hullHsv.Z < 0.5f ? 0.1f : -0.1f), 0f, 1f)
+            );
+            
+            palette[(int)ColorIndex.LetterBlock] = letterHsv.HSVToColorMask();
+            palette[(int)ColorIndex.LetterBlockBackground] = backgroundHsv.HSVToColorMask();
         }
 
         /// <summary>
