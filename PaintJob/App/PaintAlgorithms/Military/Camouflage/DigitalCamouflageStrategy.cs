@@ -61,22 +61,28 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
 
         private float CalculateNoise(Vector3I position, float frequency, Random random)
         {
-            // Simple pseudo-random noise based on position
-            var hash = position.GetHashCode();
-            random = new Random(hash);
-            
             // Multi-octave noise for more interesting patterns
             var noise = 0f;
             var amplitude = 1f;
             var maxValue = 0f;
+            var freq = frequency;
 
             for (var i = 0; i < 3; i++)
             {
-                var sample = (float)random.NextDouble();
+                // Scale position by frequency for this octave
+                var scaledX = position.X * freq;
+                var scaledY = position.Y * freq;
+                var scaledZ = position.Z * freq;
+                
+                // Generate deterministic pseudo-random value based on scaled position
+                var hash = unchecked((int)(scaledX * 374761393 + scaledY * 668265263 + scaledZ * 1274126177));
+                var octaveRandom = new Random(hash);
+                var sample = (float)octaveRandom.NextDouble();
+                
                 noise += sample * amplitude;
                 maxValue += amplitude;
                 amplitude *= 0.5f;
-                frequency *= 2f;
+                freq *= 2f;
             }
 
             return noise / maxValue;
