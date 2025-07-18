@@ -15,7 +15,7 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
     {
         public string Name => "Hexagonal";
 
-        private const float Sqrt3 = MathF.Sqrt(3);
+        private const float Sqrt3 = 1.732050808f;
 
         public Dictionary<Vector3I, int> GeneratePattern(
             MyCubeGrid grid,
