@@ -75,7 +75,7 @@ namespace PaintJob.App.PaintAlgorithms.Military.Camouflage
                 var scaledZ = position.Z * freq;
                 
                 // Generate deterministic pseudo-random value based on scaled position
-                var hash = unchecked((int)(scaledX * HashPrimeX + scaledY * HashPrimeY + scaledZ * HashPrimeZ));
+                var hash = unchecked((int)(scaledX * 374761393 + scaledY * 668265263 + scaledZ * 1274126177));
                 var octaveRandom = new Random(hash);
                 var sample = (float)octaveRandom.NextDouble();
                 
