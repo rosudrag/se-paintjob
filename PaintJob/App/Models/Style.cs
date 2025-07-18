@@ -2,6 +2,7 @@
 {
     public enum Style
     {
-        Rudimentary
+        Rudimentary,
+        Military
     }
 }

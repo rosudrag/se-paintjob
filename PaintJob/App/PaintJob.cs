@@ -22,6 +22,9 @@ namespace PaintJob.App
             {
                 {
                     Style.Rudimentary, new RudimentaryPaintJob()
+                },
+                {
+                    Style.Military, new MilitaryPaintJob()
                 }
             };
         }

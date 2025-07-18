@@ -525,12 +525,15 @@
         <Compile Include="App\Analysis\PatternGenerator.cs" />
         <Compile Include="App\Analysis\SectionDetector.cs" />
         <Compile Include="App\Analysis\ShipGeometryAnalyzer.cs" />
+        <Compile Include="App\Analysis\SpatialOrientationAnalyzer.cs" />
         <Compile Include="App\Analysis\SurfaceAnalyzer.cs" />
         <Compile Include="App\Extensions\ColorExtensions.cs" />
+        <Compile Include="App\Extensions\ColorMaskExtensions.cs" />
         <Compile Include="App\Extensions\GridUtilities.cs" />
         <Compile Include="App\IPaintApp.cs" />
         <Compile Include="App\IPaintJob.cs" />
         <Compile Include="App\Models\Style.cs" />
+        <Compile Include="App\PaintAlgorithms\MilitaryPaintJob.cs" />
         <Compile Include="App\PaintAlgorithms\RudimentaryPaintJob.cs" />
         <Compile Include="App\PaintAlgorithms\PaintAlgorithm.cs" />
         <Compile Include="App\PaintApp.cs" />
@@ -547,6 +550,7 @@
         <Compile Include="App\Systems\IPaintJobStateSystem.cs" />
         <Compile Include="App\Systems\PaintJobHelpSystem.cs" />
         <Compile Include="App\Systems\PaintJobStateSystem.cs" />
+        <Compile Include="App\Utils\ColorSchemeGenerator.cs" />
         <Compile Include="Extensions\DictionaryExtensions.cs" />
         <Compile Include="GUI\MyPluginConfigDialog.cs" />
         <Compile Include="IoC.cs" />

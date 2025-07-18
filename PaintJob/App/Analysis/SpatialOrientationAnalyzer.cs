@@ -153,8 +153,12 @@ namespace PaintJob.App.Analysis
             }
             
             // Final fallback: Use grid's longest axis as forward
-            var bounds = grid.BoundingBox;
-            var size = bounds.Size;
+            var gridSize = new Vector3(
+                grid.Max.X - grid.Min.X,
+                grid.Max.Y - grid.Min.Y,
+                grid.Max.Z - grid.Min.Z
+            );
+            var size = gridSize;
             
             if (size.X >= size.Y && size.X >= size.Z)
             {
@@ -192,11 +196,11 @@ namespace PaintJob.App.Analysis
             foreach (var block in blocks)
             {
                 // Get all positions occupied by this block
-                for (int x = block.Min.X; x <= block.Max.X; x++)
+                for (var x = block.Min.X; x <= block.Max.X; x++)
                 {
-                    for (int y = block.Min.Y; y <= block.Max.Y; y++)
+                    for (var y = block.Min.Y; y <= block.Max.Y; y++)
                     {
-                        for (int z = block.Min.Z; z <= block.Max.Z; z++)
+                        for (var z = block.Min.Z; z <= block.Max.Z; z++)
                         {
                             var worldPos = grid.GridIntegerToWorld(new Vector3I(x, y, z));
                             

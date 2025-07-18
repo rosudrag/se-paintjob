@@ -49,11 +49,11 @@ namespace PaintJob.App.Analysis
                 };
                 
                 // Get all positions this block occupies
-                for (int x = block.Min.X; x <= block.Max.X; x++)
+                for (var x = block.Min.X; x <= block.Max.X; x++)
                 {
-                    for (int y = block.Min.Y; y <= block.Max.Y; y++)
+                    for (var y = block.Min.Y; y <= block.Max.Y; y++)
                     {
-                        for (int z = block.Min.Z; z <= block.Max.Z; z++)
+                        for (var z = block.Min.Z; z <= block.Max.Z; z++)
                         {
                             var pos = new Vector3I(x, y, z);
                             info.OccupiedPositions.Add(pos);

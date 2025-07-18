@@ -229,7 +229,7 @@ namespace PaintJob.App.Analysis
                             var currentPos = block.Position;
                             var lineLength = _random.Next(3, 10);
                             
-                            for (int i = 0; i < lineLength; i++)
+                            for (var i = 0; i < lineLength; i++)
                             {
                                 var nextPos = currentPos + lineDir;
                                 var nextBlock = grid.GetCubeBlock(nextPos);
