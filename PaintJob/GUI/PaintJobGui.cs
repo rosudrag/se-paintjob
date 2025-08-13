@@ -16,6 +16,8 @@ using VRage.Utils;
 using VRageMath;
 using PaintJob.App;
 using PaintJob.App.Models;
+using PaintJob.App.Constants;
+using PaintJob.App.Validation;
 
 namespace PaintJob.GUI
 {
@@ -31,15 +33,14 @@ namespace PaintJob.GUI
         private MyGuiControlButton applyButton;
         private MyGuiControlButton cancelButton;
         private MyGuiControlButton refreshButton;
+        private MyGuiControlButton suggestionsButton;
         private MyGuiControlLabel statusLabel;
         
         private IPaintJob paintJob;
         private List<MyCubeGrid> availableGrids;
         private Dictionary<Style, List<string>> styleVariants;
-        
-        private const float MAX_RANGE = 500f; // 500 meters
 
-        public PaintJobGui(IPaintJob paintJob) : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.5f, 0.6f))
+        public PaintJobGui(IPaintJob paintJob) : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(PaintJobConstants.GUI_WIDTH, PaintJobConstants.GUI_HEIGHT))
         {
             this.paintJob = paintJob;
             availableGrids = new List<MyCubeGrid>();
@@ -53,21 +54,12 @@ namespace PaintJob.GUI
 
         private void InitializeStyleVariants()
         {
-            styleVariants = new Dictionary<Style, List<string>>
-            {
-                { Style.Rudimentary, new List<string> { "Default" } },
-                { Style.Military, new List<string> { "Standard", "Stealth", "Asteroid", "Industrial", "Deep_Space" } },
-                { Style.Racing, new List<string> { "Formula1", "Rally", "Street", "Drag", "Endurance" } },
-                { Style.Pirate, new List<string> { "Skull", "Kraken", "Blackbeard", "Corsair", "Marauder" } },
-                { Style.Corporate, new List<string> { "Mining_Corp", "Transport_Co", "Security_Firm", "Research_Lab", "Construction" } },
-                { Style.Alien, new List<string> { "Organic", "Crystalline", "Techno_Organic", "Hive", "Ancient" } },
-                { Style.Retro, new List<string> { "80s_Neon", "50s_Chrome", "70s_Disco", "90s_Cyber", "Art_Deco" } }
-            };
+            styleVariants = StyleVariants.GetStyleVariantMap();
         }
 
         public override string GetFriendlyName()
         {
-            return "Paint Job Designer";
+            return PaintJobConstants.GUI_FRIENDLY_NAME;
         }
 
         public override void RecreateControls(bool constructor)
@@ -75,24 +67,20 @@ namespace PaintJob.GUI
             base.RecreateControls(constructor);
             
             var currentPosition = new Vector2(0f, -0.25f);
-            var buttonSize = new Vector2(0.15f, 0.05f);
-            var comboSize = new Vector2(0.3f, 0.05f);
-            var spacing = 0.02f;
-            
-            // Title
+            var buttonSize = new Vector2(PaintJobConstants.BUTTON_WIDTH, PaintJobConstants.BUTTON_HEIGHT);
+            var comboSize = new Vector2(PaintJobConstants.COMBO_WIDTH, PaintJobConstants.COMBO_HEIGHT);
+            var spacing = PaintJobConstants.SPACING;
             titleLabel = new MyGuiControlLabel(
                 position: new Vector2(0f, currentPosition.Y),
-                text: "PAINT JOB DESIGNER",
+                text: PaintJobConstants.GUI_TITLE,
                 colorMask: Color.White,
                 textScale: 1.2f,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             Controls.Add(titleLabel);
             currentPosition.Y += 0.06f;
-            
-            // Grid selection
             gridLabel = new MyGuiControlLabel(
                 position: new Vector2(-0.15f, currentPosition.Y),
-                text: "Select Grid:",
+                text: PaintJobConstants.LABEL_SELECT_GRID,
                 colorMask: Color.White,
                 textScale: 0.8f,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -100,27 +88,23 @@ namespace PaintJob.GUI
             currentPosition.Y += 0.03f;
             
             gridCombobox = new MyGuiControlCombobox(
-                position: new Vector2(0f, currentPosition.Y),
+                position: new Vector2(-0.08f, currentPosition.Y),
                 size: comboSize,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            gridCombobox.SetToolTip("Select a grid within 500m that you own");
+            gridCombobox.SetToolTip(PaintJobConstants.TOOLTIP_GRID_SELECT);
             Controls.Add(gridCombobox);
-            
-            // Refresh button next to grid combo
             refreshButton = new MyGuiControlButton(
-                position: new Vector2(0.18f, currentPosition.Y),
-                size: new Vector2(0.08f, 0.04f),
-                text: new StringBuilder("Refresh"),
+                position: new Vector2(0.11f, currentPosition.Y),
+                size: new Vector2(PaintJobConstants.REFRESH_BUTTON_WIDTH, PaintJobConstants.REFRESH_BUTTON_HEIGHT),
+                text: new StringBuilder(PaintJobConstants.BUTTON_REFRESH),
                 onButtonClick: OnRefreshClicked,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
                 visualStyle: MyGuiControlButtonStyleEnum.Small);
             Controls.Add(refreshButton);
             currentPosition.Y += 0.05f + spacing;
-            
-            // Style selection
             styleLabel = new MyGuiControlLabel(
                 position: new Vector2(-0.15f, currentPosition.Y),
-                text: "Paint Style:",
+                text: PaintJobConstants.LABEL_PAINT_STYLE,
                 colorMask: Color.White,
                 textScale: 0.8f,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -128,17 +112,15 @@ namespace PaintJob.GUI
             currentPosition.Y += 0.03f;
             
             styleCombobox = new MyGuiControlCombobox(
-                position: new Vector2(0f, currentPosition.Y),
+                position: new Vector2(-0.08f, currentPosition.Y),
                 size: comboSize,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             styleCombobox.ItemSelected += OnStyleSelected;
             Controls.Add(styleCombobox);
             currentPosition.Y += 0.05f + spacing;
-            
-            // Variant selection
             variantLabel = new MyGuiControlLabel(
                 position: new Vector2(-0.15f, currentPosition.Y),
-                text: "Variant:",
+                text: PaintJobConstants.LABEL_VARIANT,
                 colorMask: Color.White,
                 textScale: 0.8f,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -146,13 +128,11 @@ namespace PaintJob.GUI
             currentPosition.Y += 0.03f;
             
             variantCombobox = new MyGuiControlCombobox(
-                position: new Vector2(0f, currentPosition.Y),
+                position: new Vector2(-0.08f, currentPosition.Y),
                 size: comboSize,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             Controls.Add(variantCombobox);
             currentPosition.Y += 0.05f + spacing * 2;
-            
-            // Status label
             statusLabel = new MyGuiControlLabel(
                 position: new Vector2(0f, currentPosition.Y),
                 text: "",
@@ -161,28 +141,36 @@ namespace PaintJob.GUI
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             Controls.Add(statusLabel);
             currentPosition.Y += 0.04f;
-            
-            // Buttons
             applyButton = new MyGuiControlButton(
                 position: new Vector2(-0.08f, currentPosition.Y),
                 size: buttonSize,
-                text: new StringBuilder("Apply"),
+                text: new StringBuilder(PaintJobConstants.BUTTON_APPLY),
                 onButtonClick: OnApplyClicked,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
                 visualStyle: MyGuiControlButtonStyleEnum.Default);
-            applyButton.SetToolTip("Apply the selected paint job to the grid");
+            applyButton.SetToolTip(PaintJobConstants.TOOLTIP_APPLY);
             Controls.Add(applyButton);
             
             cancelButton = new MyGuiControlButton(
                 position: new Vector2(0.08f, currentPosition.Y),
                 size: buttonSize,
-                text: new StringBuilder("Cancel"),
+                text: new StringBuilder(PaintJobConstants.BUTTON_CANCEL),
                 onButtonClick: OnCancelClicked,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
                 visualStyle: MyGuiControlButtonStyleEnum.Default);
             Controls.Add(cancelButton);
             
-            // Initialize controls
+            currentPosition.Y += 0.06f;
+            suggestionsButton = new MyGuiControlButton(
+                position: new Vector2(0f, currentPosition.Y),
+                size: new Vector2(0.12f, 0.04f),
+                text: new StringBuilder(PaintJobConstants.BUTTON_SUGGESTIONS),
+                onButtonClick: OnSuggestionsClicked,
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
+                visualStyle: MyGuiControlButtonStyleEnum.Small);
+            suggestionsButton.SetToolTip("Open GitHub to submit suggestions or report issues");
+            Controls.Add(suggestionsButton);
+            
             PopulateStyleCombobox();
             RefreshGridList();
         }
@@ -213,7 +201,7 @@ namespace PaintJob.GUI
             if (player == null) return;
             
             var playerPosition = player.GetPosition();
-            var sphere = new BoundingSphereD(playerPosition, MAX_RANGE);
+            var sphere = new BoundingSphereD(playerPosition, PaintJobConstants.MAX_GRID_RANGE);
             
             var entities = new List<VRage.Game.Entity.MyEntity>();
             MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, entities);
@@ -223,12 +211,9 @@ namespace PaintJob.GUI
                 var grid = entity as MyCubeGrid;
                 if (grid == null || grid.Physics == null) continue;
                 
-                // Check ownership
-                if (!IsGridOwnedByPlayer(grid, player.Identity.IdentityId)) continue;
+                if (!GridValidator.CanPlayerPaintGrid(grid, player.Identity.IdentityId, playerPosition)) continue;
                 
-                // Check distance
-                var distance = Vector3D.Distance(playerPosition, grid.PositionComp.GetPosition());
-                if (distance > MAX_RANGE) continue;
+                var distance = GridValidator.GetDistanceToGrid(grid, playerPosition);
                 
                 availableGrids.Add(grid);
                 
@@ -240,37 +225,14 @@ namespace PaintJob.GUI
             if (gridCombobox.GetItemsCount() > 0)
             {
                 gridCombobox.SelectItemByIndex(0);
-                UpdateStatus($"Found {availableGrids.Count} grid(s) in range");
+                UpdateStatus(string.Format(PaintJobConstants.STATUS_GRIDS_FOUND, availableGrids.Count));
             }
             else
             {
-                UpdateStatus("No owned grids found within 500m", Color.Orange);
+                UpdateStatus(PaintJobConstants.STATUS_NO_GRIDS_FOUND, Color.Orange);
             }
         }
 
-        private bool IsGridOwnedByPlayer(MyCubeGrid grid, long playerId)
-        {
-            // Check if player owns majority of blocks or is the grid owner
-            var blocks = grid.GetBlocks();
-            if (blocks.Count == 0) return false;
-            
-            int ownedBlocks = 0;
-            foreach (var block in blocks)
-            {
-                if (block.FatBlock != null && block.FatBlock.OwnerId == playerId)
-                {
-                    ownedBlocks++;
-                }
-            }
-            
-            // Player owns if they own more than 50% of blocks with ownership
-            var blocksWithOwnership = blocks.Count(b => b.FatBlock != null);
-            if (blocksWithOwnership > 0 && ownedBlocks > blocksWithOwnership / 2)
-                return true;
-            
-            // Also check BigOwners list
-            return grid.BigOwners.Contains(playerId);
-        }
 
         private void OnStyleSelected()
         {
@@ -310,24 +272,22 @@ namespace PaintJob.GUI
         {
             if (gridCombobox.GetSelectedIndex() < 0 || gridCombobox.GetSelectedIndex() >= availableGrids.Count)
             {
-                UpdateStatus("Please select a grid", Color.Red);
+                UpdateStatus(PaintJobConstants.STATUS_NO_GRID_SELECTED, Color.Red);
                 return;
             }
             
             var selectedStyleKey = styleCombobox.GetSelectedKey();
             if (selectedStyleKey == -1L)
             {
-                UpdateStatus("Please select a paint style", Color.Red);
+                UpdateStatus(PaintJobConstants.STATUS_NO_STYLE_SELECTED, Color.Red);
                 return;
             }
             
             var selectedGrid = availableGrids[gridCombobox.GetSelectedIndex()];
             var selectedStyle = (Style)selectedStyleKey;
             
-            // Build args array
             var args = new List<string> { selectedStyle.ToString() };
             
-            // Add variant if not rudimentary
             if (selectedStyle != Style.Rudimentary && variantCombobox.GetSelectedIndex() >= 0)
             {
                 if (styleVariants.TryGetValue(selectedStyle, out var variants))
@@ -339,36 +299,37 @@ namespace PaintJob.GUI
             
             try
             {
-                // Apply paint job to selected grid
                 ApplyPaintToGrid(selectedGrid, args.ToArray());
                 
-                UpdateStatus($"Paint applied to {selectedGrid.DisplayName}!", Color.Green);
+                UpdateStatus(string.Format(PaintJobConstants.STATUS_PAINT_APPLIED, selectedGrid.DisplayName), Color.Green);
                 
-                // Close GUI after successful application
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     MyMessageBoxStyleEnum.Info,
                     MyMessageBoxButtonsType.OK,
-                    new StringBuilder($"Successfully painted {selectedGrid.DisplayName} with {selectedStyle} style!"),
-                    new StringBuilder("Paint Job Applied"),
+                    new StringBuilder(string.Format(PaintJobConstants.DIALOG_SUCCESS_MESSAGE, selectedGrid.DisplayName, selectedStyle)),
+                    new StringBuilder(PaintJobConstants.DIALOG_SUCCESS_TITLE),
                     callback: (result) => CloseScreen()));
             }
             catch (Exception ex)
             {
-                UpdateStatus($"Error: {ex.Message}", Color.Red);
+                UpdateStatus(string.Format(PaintJobConstants.STATUS_ERROR, ex.Message), Color.Red);
                 MyAPIGateway.Utilities.ShowMessage("PaintJob", $"Error applying paint: {ex.Message}");
             }
         }
 
         private void ApplyPaintToGrid(MyCubeGrid grid, string[] args)
         {
-            // We need to use the existing paint job system
-            // This will be called from the GUI context
             paintJob.Run(args, grid);
         }
 
         private void OnCancelClicked(MyGuiControlButton button)
         {
             CloseScreen();
+        }
+        
+        private void OnSuggestionsClicked(MyGuiControlButton button)
+        {
+            System.Diagnostics.Process.Start(PaintJobConstants.GITHUB_ISSUES_URL);
         }
 
         private void UpdateStatus(string message, Color? color = null)

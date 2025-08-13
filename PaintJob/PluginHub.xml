@@ -1,14 +1,30 @@
 <?xml version="1.0"?>
-<PluginData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
-    <Id>rosudrag/se-paintjob</Id>
-    <GroupId>rosudrag/se-paintjob</GroupId>
-    <FriendlyName>Paint Jobs</FriendlyName>
-    <Author>rosudrag</Author>
-    <Commit>47edcf1086e5fee18ebc099073d1d287e18d115d</Commit>
-    <SourceDirectories>
-        <Directory>Shared</Directory>
-        <Directory>PaintJob</Directory>
-    </SourceDirectories>
-    <Tooltip>Apply custom paint jobs to grids.</Tooltip>
-    <Description>Apply custom paint jobs to grids.</Description>
+<PluginData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
+  <Id>rosudrag/se-paintjob</Id>
+  <FriendlyName>Paint Jobs</FriendlyName>
+  <Author>rosudrag</Author>
+  <Tooltip>Professional paint designer with GUI - 7 styles, 30+ variants including military, racing, pirate, alien &amp; more!</Tooltip>
+  <Description>
+Transform your grids with professional paint jobs through an intuitive GUI interface!
+
+FEATURES:
+• User-friendly GUI: No complex commands needed - just point and paint!
+• 7 unique paint styles with 30+ total variants
+• Advanced painting system with gradient effects and pattern generation
+• Smart ship analysis for intelligent color placement
+• Navigation lights: Automatic port (red) &amp; starboard (green) lighting
+• Unique variations: Each grid gets unique colors based on its ID
+• Range-based selection: Paint grids within 500m that you own
+
+HOW TO USE:
+1. Type /paint to open the Paint Designer GUI
+2. Select your grid from the dropdown (must be within 500m and owned by you)
+3. Choose a paint style and variant
+4. Click Apply to transform your grid instantly!
+
+COMMANDS:
+/paint - Open the Paint Designer GUI
+/paint help - Show help information
+  </Description>
+  <Commit>cf4e70b7b60b4018402cee7d0cb3bb90cd65945b</Commit>
 </PluginData>

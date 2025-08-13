@@ -574,6 +574,9 @@
         <Compile Include="App\Systems\IPaintJobHelpSystem.cs" />
         <Compile Include="App\Systems\PaintJobHelpSystem.cs" />
         <Compile Include="App\Utils\ColorSchemeGenerator.cs" />
+        <Compile Include="App\Constants\PaintJobConstants.cs" />
+        <Compile Include="App\Constants\StyleVariants.cs" />
+        <Compile Include="App\Validation\GridValidator.cs" />
         <Compile Include="Extensions\DictionaryExtensions.cs" />
         <Compile Include="GUI\MyPluginConfigDialog.cs" />
         <Compile Include="GUI\PaintJobGui.cs" />
