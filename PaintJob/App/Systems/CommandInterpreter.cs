@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PaintJob.App.Models;
+using PaintJob.GUI;
 using Sandbox.ModAPI;
 using VRage.Game;
 
@@ -23,6 +24,9 @@ namespace PaintJob.App.Systems
                 },
                 {
                     "run", args => paintJob.Run(args)
+                },
+                {
+                    "", args => OpenPaintGui(paintJob)  // Empty command opens GUI
                 }
             };
         }
@@ -34,7 +38,7 @@ namespace PaintJob.App.Systems
 
             args = args.Skip(1).ToArray();
 
-            var command = args.Length > 0 ? args[0].ToLower() : "help";
+            var command = args.Length > 0 ? args[0].ToLower() : "";
             var remainingArgs = args.Skip(1).ToArray();
 
             if (_commands.TryGetValue(command, out var action))
@@ -45,6 +49,16 @@ namespace PaintJob.App.Systems
             {
                 MyAPIGateway.Utilities.ShowNotification("Invalid command. Type '/paint help' for a list of commands.", 5000, MyFontEnum.Red);
             }
+        }
+
+        
+        private void OpenPaintGui(IPaintJob paintJob)
+        {
+            // Open the GUI
+            Sandbox.MySandboxGame.Static.Invoke(() => 
+            {
+                Sandbox.Graphics.GUI.MyGuiSandbox.AddScreen(new GUI.PaintJobGui(paintJob));
+            }, "PaintJobGui");
         }
     }
 }

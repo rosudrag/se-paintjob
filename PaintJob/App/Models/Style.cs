@@ -3,6 +3,11 @@
     public enum Style
     {
         Rudimentary,
-        Military
+        Military,
+        Racing,
+        Pirate,
+        Corporate,
+        Alien,
+        Retro
     }
 }

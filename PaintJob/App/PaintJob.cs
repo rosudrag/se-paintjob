@@ -19,6 +19,21 @@ namespace PaintJob.App
             },
             {
                 Style.Military, new MilitaryPaintJob()
+            },
+            {
+                Style.Racing, new RacingPaintJob()
+            },
+            {
+                Style.Pirate, new PiratePaintJob()
+            },
+            {
+                Style.Corporate, new CorporatePaintJob()
+            },
+            {
+                Style.Alien, new AlienPaintJob()
+            },
+            {
+                Style.Retro, new RetroPaintJob()
             }
         };
 
@@ -60,15 +75,38 @@ namespace PaintJob.App
 
                 if (targetGrid != null)
                 {
-                    // Configure algorithm with args if it's military
-                    if (paintAlgorithm is MilitaryPaintJob militaryPaintJob && algorithmArgs != null && algorithmArgs.Length > 0)
+                    // Configure algorithm with variant args if supported
+                    if (algorithmArgs != null && algorithmArgs.Length > 0)
                     {
-                        militaryPaintJob.SetVariant(algorithmArgs[0]);
+                        if (paintAlgorithm is MilitaryPaintJob militaryPaintJob)
+                        {
+                            militaryPaintJob.SetVariant(algorithmArgs[0]);
+                        }
+                        else if (paintAlgorithm is RacingPaintJob racingPaintJob)
+                        {
+                            racingPaintJob.SetVariant(algorithmArgs[0]);
+                        }
+                        else if (paintAlgorithm is PiratePaintJob piratePaintJob)
+                        {
+                            piratePaintJob.SetVariant(algorithmArgs[0]);
+                        }
+                        else if (paintAlgorithm is CorporatePaintJob corporatePaintJob)
+                        {
+                            corporatePaintJob.SetVariant(algorithmArgs[0]);
+                        }
+                        else if (paintAlgorithm is AlienPaintJob alienPaintJob)
+                        {
+                            alienPaintJob.SetVariant(algorithmArgs[0]);
+                        }
+                        else if (paintAlgorithm is RetroPaintJob retroPaintJob)
+                        {
+                            retroPaintJob.SetVariant(algorithmArgs[0]);
+                        }
                     }
                     
                     paintAlgorithm.Run(targetGrid as MyCubeGrid);
 
-                    var notification = style == Style.Military && algorithmArgs != null && algorithmArgs.Length > 0
+                    var notification = algorithmArgs != null && algorithmArgs.Length > 0
                         ? $"Grid painted with {style} style (variant: {algorithmArgs[0]})."
                         : $"Grid painted with {style} style.";
                     MyAPIGateway.Utilities.ShowNotification(notification, 5000, MyFontEnum.Green);
@@ -87,6 +125,75 @@ namespace PaintJob.App
                 paintAlgorithm.Clean();
             }
 
+        }
+
+        public void Run(string[] args, MyCubeGrid targetGrid)
+        {
+            Style style;
+            string[] algorithmArgs = null;
+            
+            // Parse style from args if provided, otherwise use current style
+            if (args != null && args.Length > 0)
+            {
+                if (Enum.TryParse(args[0], true, out style))
+                {
+                    // Style was provided in args, pass remaining args to algorithm
+                    algorithmArgs = args.Length > 1 ? args.Skip(1).ToArray() : null;
+                }
+                else
+                {
+                    // First arg wasn't a valid style
+                    throw new ArgumentException($"Unknown style '{args[0]}'");
+                }
+            }
+            else
+            {
+                // No args provided, default to rudimentary
+                style = Style.Rudimentary;
+            }
+            
+            if (!_algorithms.TryGetValue(style, out var paintAlgorithm))
+            {
+                throw new InvalidOperationException($"Style '{style}' not found.");
+            }
+
+            try
+            {
+                // Configure algorithm with variant args if supported
+                if (algorithmArgs != null && algorithmArgs.Length > 0)
+                {
+                    if (paintAlgorithm is MilitaryPaintJob militaryPaintJob)
+                    {
+                        militaryPaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    else if (paintAlgorithm is RacingPaintJob racingPaintJob)
+                    {
+                        racingPaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    else if (paintAlgorithm is PiratePaintJob piratePaintJob)
+                    {
+                        piratePaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    else if (paintAlgorithm is CorporatePaintJob corporatePaintJob)
+                    {
+                        corporatePaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    else if (paintAlgorithm is AlienPaintJob alienPaintJob)
+                    {
+                        alienPaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                    else if (paintAlgorithm is RetroPaintJob retroPaintJob)
+                    {
+                        retroPaintJob.SetVariant(algorithmArgs[0]);
+                    }
+                }
+                
+                paintAlgorithm.Run(targetGrid);
+            }
+            finally
+            {
+                paintAlgorithm.Clean();
+            }
         }
     }
 
