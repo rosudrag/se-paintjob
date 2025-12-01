@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PaintJob.App.Constants
 {
     public static class PaintJobConstants

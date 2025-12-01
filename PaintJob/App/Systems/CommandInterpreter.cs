@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PaintJob.App.Models;
 using PaintJob.App.Constants;
-using PaintJob.GUI;
 using Sandbox.ModAPI;
 using VRage.Game;
 

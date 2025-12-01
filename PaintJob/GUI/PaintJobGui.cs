@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Sandbox;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
 using VRage.Game;
-using VRage.Game.Entity;
-using VRage.Game.ModAPI;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;

@@ -4,7 +4,6 @@ using System.Linq;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
-using VRage.Game.ModAPI;
 using VRageMath;
 
 namespace PaintJob.App.PaintAlgorithms

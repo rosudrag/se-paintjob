@@ -1,23 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.ModAPI;
+using VRageMath;
+using VRage.Utils;
+using PaintJob.App.Analysis;
 using PaintJob.App.PaintAlgorithms.Common;
 using PaintJob.App.PaintAlgorithms.Common.Painters;
 using PaintJob.App.PaintAlgorithms.Military;
 using PaintJob.App.PaintAlgorithms.Military.Analyzers;
 using PaintJob.App.PaintAlgorithms.Military.Camouflage;
 using PaintJob.App.PaintAlgorithms.Military.Painters;
+using PaintJob.App.Skins;
+using PaintJob.App.Skins.Painters;
 using PaintJob.App.Utils;
-using Sandbox.Game.Entities;
-using Sandbox.ModAPI;
-using VRageMath;
 
 namespace PaintJob.App.PaintAlgorithms
 {
     /// <summary>
-    /// Military-themed paint job with camouflage patterns and functional coloring.
+    /// Enhanced military paint job that supports both colors and skins
     /// </summary>
-    public class MilitaryPaintJob : PaintAlgorithm
+    public class EnhancedMilitaryPaintJob : SkinAwarePaintAlgorithm
     {
         private readonly IAnalyzerFactory _analyzerFactory;
         private readonly CamouflageFactory _camouflageFactory;
@@ -27,31 +32,69 @@ namespace PaintJob.App.PaintAlgorithms
         
         private Vector3[] _colorPalette;
         private string _variant = "standard";
-
-        public MilitaryPaintJob()
+        private bool _useAdaptiveCamo = true;
+        
+        public EnhancedMilitaryPaintJob() : base()
         {
             _analyzerFactory = new MilitaryAnalyzerFactory();
             _camouflageFactory = new CamouflageFactory();
             _colorScheme = new MilitaryColorScheme();
             _colorResults = new Dictionary<Vector3I, int>();
             _painters = InitializeDefaultPainters();
+            
+            // Set military theme for skins
+            SkinTheme = "military";
+            EnableSkins = true;
         }
         
         /// <summary>
-        /// Sets the military variant for color generation.
+        /// Sets the military variant for color and skin generation
         /// </summary>
-        /// <param name="variant">Variant type: standard, stealth, asteroid, industrial, deep_space</param>
-        public void SetVariant(string variant)
+        public void SetVariant(string variant, bool useAdaptiveCamo = true)
         {
             _variant = variant;
+            _useAdaptiveCamo = useAdaptiveCamo;
+            
+            // Update skin theme based on variant
+            switch (variant?.ToLower())
+            {
+                case "stealth":
+                    SkinTheme = "stealth";
+                    break;
+                case "desert":
+                    SkinTheme = "desert";
+                    break;
+                case "arctic":
+                    SkinTheme = "arctic";
+                    break;
+                case "urban":
+                    SkinTheme = "urban";
+                    break;
+                case "jungle":
+                    SkinTheme = "jungle";
+                    break;
+                default:
+                    SkinTheme = "military";
+                    break;
+            }
+        }
+        
+        protected override void InitializeSkinPainters()
+        {
+            // Add military-specific skin painters
+            var seed = _random?.Next() ?? 0;
+            _skinPainters.Clear();
+            _skinPainters.Add(new MilitarySkinPainter(_skinProvider, seed));
+            _skinPainters.Add(new PatternSkinPainter(seed));
         }
         
         public override void Clean()
         {
+            base.Clean();
             _colorResults.Clear();
             _colorPalette = null;
         }
-
+        
         protected override void Apply(MyCubeGrid grid)
         {
             try
@@ -61,28 +104,23 @@ namespace PaintJob.App.PaintAlgorithms
                 // Perform analysis
                 var context = PerformAnalysis(grid);
                 
-                // Apply painters in priority order
+                // Apply color painters
                 ApplyPainters(grid, context);
                 
-                // Apply final colors to grid
-                ApplyColorsToGrid(grid);
+                // Apply both colors and skins
+                ApplyColorsAndSkins(grid, _colorResults, _colorPalette);
             }
             catch (Exception ex)
             {
-                LogError($"Failed to apply military paint job: {ex.Message}");
-                throw new InvalidOperationException("Military paint job application failed", ex);
+                LogError($"Failed to apply enhanced military paint job: {ex.Message}");
+                throw new InvalidOperationException("Enhanced military paint job application failed", ex);
             }
         }
-
+        
         private void ValidateGrid(MyCubeGrid grid)
         {
             if (grid == null)
                 throw new ArgumentNullException(nameof(grid));
-            
-            if (grid.Physics == null)
-            {
-                LogWarning("Grid has no physics, paint job may not apply correctly");
-            }
             
             var blocks = grid.GetBlocks();
             if (!blocks.Any())
@@ -90,19 +128,19 @@ namespace PaintJob.App.PaintAlgorithms
                 throw new InvalidOperationException("Grid has no blocks to paint");
             }
         }
-
+        
         private PaintContext PerformAnalysis(MyCubeGrid grid)
         {
             try
             {
-                LogInfo("Performing grid analysis...");
+                LogInfo("Performing grid analysis for enhanced military paint...");
                 
                 var geometryAnalyzer = _analyzerFactory.CreateGeometryAnalyzer();
                 var spatialAnalyzer = _analyzerFactory.CreateSpatialAnalyzer();
                 var surfaceAnalyzer = _analyzerFactory.CreateSurfaceAnalyzer();
                 var functionalAnalyzer = _analyzerFactory.CreateFunctionalAnalyzer();
                 var orientationAnalyzer = _analyzerFactory.CreateOrientationAnalyzer();
-
+                
                 var context = new PaintContext
                 {
                     ColorScheme = _colorScheme,
@@ -113,20 +151,19 @@ namespace PaintJob.App.PaintAlgorithms
                     Orientation = orientationAnalyzer.AnalyzeGrid(grid),
                     Blocks = grid.GetBlocks()
                 };
-
-                LogInfo($"Analysis complete. Found {context.Blocks.Count} blocks, {context.Functional.Clusters.Count} functional clusters");
+                
+                LogInfo($"Analysis complete. Found {context.Blocks.Count} blocks");
                 return context;
             }
             catch (Exception ex)
             {
                 LogError($"Analysis failed: {ex.Message}");
-                throw new InvalidOperationException("Failed to analyze grid", ex);
+                throw;
             }
         }
-
+        
         private void ApplyPainters(MyCubeGrid grid, PaintContext context)
         {
-            // Sort painters by priority
             var sortedPainters = _painters.OrderBy(p => p.Priority).ToList();
             
             foreach (var painter in sortedPainters)
@@ -139,54 +176,20 @@ namespace PaintJob.App.PaintAlgorithms
                 catch (Exception ex)
                 {
                     LogError($"Painter {painter.Name} failed: {ex.Message}");
-                    // Continue with other painters
                 }
             }
         }
-
-        private void ApplyColorsToGrid(MyCubeGrid grid)
-        {
-            if (_colorPalette == null || _colorPalette.Length == 0)
-            {
-                throw new InvalidOperationException("Color palette not initialized");
-            }
-
-            var appliedCount = 0;
-            var blocks = grid.GetBlocks();
-            
-            foreach (var block in blocks)
-            {
-                if (_colorResults.TryGetValue(block.Position, out var colorIndex))
-                {
-                    if (colorIndex >= 0 && colorIndex < _colorPalette.Length)
-                    {
-                        grid.ColorBlocks(block.Min, block.Max, _colorPalette[colorIndex], false);
-                        appliedCount++;
-                    }
-                    else
-                    {
-                        LogWarning($"Invalid color index {colorIndex} for block at {block.Position}");
-                    }
-                }
-            }
-            
-            LogInfo($"Applied colors to {appliedCount} blocks");
-        }
-
-        protected override void GeneratePalette(MyCubeGrid grid)
+        
+        protected override void GenerateColorPalette(MyCubeGrid grid)
         {
             try
             {
-                // Use grid entity ID as seed for consistent colors per grid
                 var seed = unchecked((int)grid.EntityId);
-                
-                // Use ColorSchemeGenerator with seed for deterministic palette
                 var colorGenerator = new ColorSchemeGenerator(seed);
                 
-                // Generate full military palette (12 colors) for the specified variant
+                // Generate military palette for the specified variant
                 var generatedColors = colorGenerator.GenerateMilitaryPalette(_variant);
                 
-                // Initialize color scheme with generated colors
                 _colorScheme.InitializePalette(generatedColors);
                 _colorPalette = _colorScheme.ColorPalette;
                 
@@ -195,18 +198,90 @@ namespace PaintJob.App.PaintAlgorithms
                     throw new InvalidOperationException("Failed to generate color palette");
                 }
                 
-                LogInfo($"Generated palette with {_colorPalette.Length} colors using seed {seed}");
+                LogInfo($"Generated palette with {_colorPalette.Length} colors");
             }
             catch (Exception ex)
             {
                 LogError($"Palette generation failed: {ex.Message}");
-                // Use fallback palette
                 _colorScheme.InitializePalette(null);
                 _colorPalette = _colorScheme.ColorPalette;
             }
         }
-
-
+        
+        protected override void ApplySkins(MyCubeGrid grid)
+        {
+            if (!EnableSkins)
+                return;
+            
+            LogInfo("Applying military skins...");
+            
+            // Generate context-aware skin selections
+            if (_useAdaptiveCamo)
+            {
+                ApplyAdaptiveCamoSkins(grid);
+            }
+            
+            // Apply standard skin patterns
+            base.ApplySkins(grid);
+        }
+        
+        private void ApplyAdaptiveCamoSkins(MyCubeGrid grid)
+        {
+            var blocks = grid.GetBlocks();
+            var seed = unchecked((int)grid.EntityId);
+            
+            foreach (var block in blocks)
+            {
+                // Create skin selection context
+                var context = new SkinSelectionContext
+                {
+                    Block = block,
+                    Position = block.Position,
+                    BlockSubtype = block.BlockDefinition?.Id.SubtypeId.String ?? "",
+                    ColorIndex = _colorResults.ContainsKey(block.Position) ? _colorResults[block.Position] : (int?)null,
+                    PatternType = DeterminePatternType(block),
+                    Zone = DetermineZone(block),
+                    Seed = seed
+                };
+                
+                // Select appropriate skin
+                var selectedSkin = _skinProvider.SelectSkin(context);
+                
+                if (selectedSkin != MyStringHash.NullOrEmpty)
+                {
+                    _skinManager.SetBlockSkin(block.Position, selectedSkin);
+                }
+            }
+        }
+        
+        private string DeterminePatternType(MySlimBlock block)
+        {
+            var subtype = block.BlockDefinition?.Id.SubtypeId.String ?? "";
+            
+            if (subtype.Contains("Armor"))
+                return "camouflage";
+            else if (subtype.Contains("Heavy"))
+                return "rusty";
+            else if (subtype.Contains("Interior"))
+                return "tech";
+            else
+                return "default";
+        }
+        
+        private string DetermineZone(MySlimBlock block)
+        {
+            var subtype = block.BlockDefinition?.Id.SubtypeId.String ?? "";
+            
+            if (subtype.Contains("Weapon") || subtype.Contains("Turret"))
+                return "weapon";
+            else if (subtype.Contains("Thrust") || subtype.Contains("Engine"))
+                return "propulsion";
+            else if (subtype.Contains("Armor"))
+                return "hull";
+            else
+                return "interior";
+        }
+        
         private List<IBlockPainter> InitializeDefaultPainters()
         {
             var spatialAnalyzer = _analyzerFactory.CreateSpatialAnalyzer();
@@ -221,20 +296,22 @@ namespace PaintJob.App.PaintAlgorithms
                 new NavigationMarkingsPainter(orientationAnalyzer)
             };
         }
-
+        
+        private Random _random = new Random();
+        
         private void LogInfo(string message)
         {
-            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", message);
+            MyAPIGateway.Utilities?.ShowMessage("EnhancedMilitaryPaint", message);
         }
-
+        
         private void LogWarning(string message)
         {
-            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", $"WARNING: {message}");
+            MyAPIGateway.Utilities?.ShowMessage("EnhancedMilitaryPaint", $"WARNING: {message}");
         }
-
+        
         private void LogError(string message)
         {
-            MyAPIGateway.Utilities.ShowMessage("MilitaryPaintJob", $"ERROR: {message}");
+            MyAPIGateway.Utilities?.ShowMessage("EnhancedMilitaryPaint", $"ERROR: {message}");
         }
     }
 }
